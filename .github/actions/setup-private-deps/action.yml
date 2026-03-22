@@ -1,0 +1,60 @@
+name: setup-private-deps
+description: Checkout pinned private dependencies and configure Cargo patches.
+
+inputs:
+  github-token:
+    description: Token used to checkout private dependency repositories.
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: Resolve svg-language-server ref from Cargo.toml
+      id: resolve-ref
+      shell: bash
+      run: |
+        python - <<'PY'
+        import os
+        import sys
+        from pathlib import Path
+        import tomllib
+
+        cargo = Path("Cargo.toml")
+        if not cargo.exists():
+            sys.stderr.write("Cargo.toml not found in workspace root\n")
+            sys.exit(1)
+
+        data = tomllib.loads(cargo.read_text(encoding="utf-8"))
+        dep = data.get("dependencies", {}).get("svg-format")
+        if not isinstance(dep, dict):
+            sys.stderr.write("dependencies.svg-format must be an inline table\n")
+            sys.exit(1)
+
+        ref = dep.get("rev")
+        if not isinstance(ref, str) or not ref:
+            sys.stderr.write("dependencies.svg-format.rev is missing or invalid\n")
+            sys.exit(1)
+
+        with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as f:
+            f.write(f"ref={ref}\n")
+        PY
+
+    - name: Checkout svg-language-server dependency
+      uses: actions/checkout@v6
+      with:
+        repository: kjanat/svg-language-server
+        ref: ${{ steps.resolve-ref.outputs.ref }}
+        token: ${{ inputs.github-token }}
+        path: vendor/svg-language-server
+
+    - name: Configure Cargo patches
+      shell: bash
+      run: |
+        CARGO_HOME_DIR="${CARGO_HOME:-$HOME/.cargo}"
+        mkdir -p "$CARGO_HOME_DIR"
+        cat >> "$CARGO_HOME_DIR/config.toml" <<EOF
+        [net]
+        git-fetch-with-cli = true
+        [patch."https://github.com/kjanat/svg-language-server"]
+        svg-format = { path = "$GITHUB_WORKSPACE/vendor/svg-language-server/crates/svg-format" }
+        EOF

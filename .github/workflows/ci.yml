@@ -4,15 +4,22 @@ on:
   pull_request:
   push: { branches: [master] }
 
+permissions:
+  contents: read
+
 jobs:
   check:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
+        with: { token: "${{ github.token }}" }
+
+      - name: Setup private dependencies
+        uses: ./.github/actions/setup-private-deps
+        with: { github-token: "${{ github.token }}" }
 
       - uses: dtolnay/rust-toolchain@stable
-        with:
-          targets: wasm32-unknown-unknown
+        with: { targets: wasm32-unknown-unknown }
 
       - name: Format
         run: cargo fmt --all --check
@@ -25,5 +32,3 @@ jobs:
 
       - name: Build Wasm
         run: cargo build --release --target wasm32-unknown-unknown
-        env:
-          CFLAGS_wasm32_unknown_unknown: -DNDEBUG -Disalpha(c)=(((c)>=65&&(c)<=90)||((c)>=97&&(c)<=122)) -Disdigit(c)=((c)>=48&&(c)<=57)
