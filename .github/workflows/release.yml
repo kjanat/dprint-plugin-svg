@@ -1,0 +1,32 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown
+
+      - name: Run tests
+        run: cargo test --all-targets --all-features
+
+      - name: Build Wasm artifact
+        run: cargo build --release --target wasm32-unknown-unknown
+        env:
+          CFLAGS_wasm32_unknown_unknown: -DNDEBUG -Disalpha(c)=(((c)>=65&&(c)<=90)||((c)>=97&&(c)<=122)) -Disdigit(c)=((c)>=48&&(c)<=57)
+
+      - name: Create GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: target/wasm32-unknown-unknown/release/dprint_plugin_svg.wasm

@@ -1,0 +1,2 @@
+[env]
+CFLAGS_wasm32_unknown_unknown = "-DNDEBUG -Disalpha(c)=(((c)>=65&&(c)<=90)||((c)>=97&&(c)<=122)) -Disdigit(c)=((c)>=48&&(c)<=57)"

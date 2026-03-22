@@ -1,0 +1,20 @@
+[package]
+name        = "dprint-plugin-svg"
+version     = "0.1.0"
+edition     = "2024"
+description = "dprint Wasm plugin for SVG formatting"
+readme      = "README.md"
+repository  = "https://github.com/kjanat/dprint-plugin-svg"
+license     = "MIT"
+keywords    = ["dprint", "formatter", "svg", "wasm"]
+categories  = ["development-tools", "text-editors"]
+
+[lib]
+crate-type = ["cdylib", "lib"]
+
+[dependencies]
+anyhow      = "1"
+dprint-core = { version = "0.67", features = ["wasm"] }
+serde       = { version = "1", features = ["derive"] }
+serde_json  = { version = "1", features = ["preserve_order"] }
+svg-format  = { package = "svg-format", git = "https://github.com/kjanat/svg-language-server", rev = "78b2570e7ca00b8d94014f335f62135bf79b3ab8" }
