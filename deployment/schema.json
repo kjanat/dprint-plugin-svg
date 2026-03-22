@@ -1,0 +1,72 @@
+{
+	"$schema": "http://json-schema.org/draft-07/schema#",
+	"$id": "https://plugins.dprint.dev/kjanat/dprint-plugin-svg/0.0.0/schema.json",
+	"type": "object",
+	"properties": {
+		"locked": {
+			"description": "Whether the configuration is not allowed to be overridden or extended.",
+			"type": "boolean"
+		},
+		"lineWidth": {
+			"description": "Fallback line width for formatting decisions when maxInlineTagWidth is not provided.",
+			"type": "number",
+			"default": 100
+		},
+		"maxInlineTagWidth": {
+			"description": "Maximum inline tag width before wrapping attributes or children.",
+			"type": "number",
+			"default": 100
+		},
+		"useTabs": {
+			"description": "Use tabs for indentation instead of spaces.",
+			"type": "boolean",
+			"default": true
+		},
+		"indentWidth": {
+			"description": "Indent width when useTabs is false.",
+			"type": "number",
+			"default": 2
+		},
+		"newLineKind": {
+			"description": "The newline kind to write.",
+			"type": "string",
+			"default": "auto",
+			"enum": ["auto", "lf", "crlf", "system"]
+		},
+		"attributeSort": {
+			"description": "Attribute ordering strategy.",
+			"type": "string",
+			"default": "canonical",
+			"enum": ["none", "canonical", "alphabetical"]
+		},
+		"attributeLayout": {
+			"description": "Attribute line-breaking strategy.",
+			"type": "string",
+			"default": "auto",
+			"enum": ["auto", "single-line", "multi-line"]
+		},
+		"attributesPerLine": {
+			"description": "Maximum number of attributes per line in multi-line mode.",
+			"type": "number",
+			"minimum": 1,
+			"default": 1
+		},
+		"spaceBeforeSelfClose": {
+			"description": "Whether to include a space before '/>' in self-closing tags.",
+			"type": "boolean",
+			"default": true
+		},
+		"quoteStyle": {
+			"description": "Quote style for attribute values.",
+			"type": "string",
+			"default": "preserve",
+			"enum": ["preserve", "double", "single"]
+		},
+		"wrappedAttributeIndent": {
+			"description": "Indent style for wrapped attributes.",
+			"type": "string",
+			"default": "one-level",
+			"enum": ["one-level", "align-to-tag-name"]
+		}
+	}
+}
