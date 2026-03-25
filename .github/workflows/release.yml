@@ -17,7 +17,7 @@ jobs:
 
       - name: Setup private dependencies
         uses: ./.github/actions/setup-private-deps
-        with: { github-token: "${{ github.token }}" }
+        with: { ssh-private-key: "${{ secrets.SVG_SLS_DEPLOY_KEY }}" }
 
       - uses: dtolnay/rust-toolchain@stable
         with: { targets: wasm32-unknown-unknown }
@@ -28,6 +28,11 @@ jobs:
       - name: Build Wasm artifact
         run: cargo build --release --target wasm32-unknown-unknown
 
+      - name: Generate schema and normalize release artifact names
+        run: |
+          cargo run --features schema --bin generate-schema -- deployment/schema.json
+          cp target/wasm32-unknown-unknown/release/dprint_plugin_svg.wasm target/wasm32-unknown-unknown/release/plugin.wasm
+
       - name: Create GitHub release
         uses: softprops/action-gh-release@v2
-        with: { files: target/wasm32-unknown-unknown/release/dprint_plugin_svg.wasm }
+        with: { files: "target/wasm32-unknown-unknown/release/plugin.wasm\ndeployment/schema.json" }

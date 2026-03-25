@@ -198,3 +198,15 @@ fn global_new_line_kind_is_used_when_svg_setting_is_missing() {
     let output = format_with_config(&result.config, input).expect("should produce formatted text");
     assert!(output.contains("\r\n"));
 }
+
+#[test]
+fn long_path_data_is_preserved() {
+    let result = resolve_configuration("defaults-global.dprint.json");
+    assert!(result.diagnostics.is_empty());
+
+    let input = "<svg><path d=\"m19.6 66.5 19.7-11 .3-1-.3-.5h-1l-3.3-.2-11.2-.3\" style=\"fill:#d97959\"/></svg>";
+    let output = format_with_config(&result.config, input).expect("should produce formatted text");
+
+    let expected = "<svg>\n    <path d=\"m19.6 66.5 19.7-11 .3-1-.3-.5h-1l-3.3-.2-11.2-.3\" style=\"fill:#d97959\" />\n</svg>";
+    assert_eq!(output, expected);
+}

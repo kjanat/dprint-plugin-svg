@@ -4,6 +4,7 @@ alias f := fmt
 alias l := lint
 alias t := test
 alias bw := build-wasm
+alias s := schema
 alias cmt := commit
 
 default:
@@ -19,7 +20,10 @@ test:
     cargo test --all-targets --all-features
 
 build-wasm:
-    CFLAGS_wasm32_unknown_unknown='-DNDEBUG -Disalpha(c)=(((c)>=65&&(c)<=90)||((c)>=97&&(c)<=122)) -Disdigit(c)=((c)>=48&&(c)<=57)' cargo build --release --target wasm32-unknown-unknown
+    cargo build --release --target wasm32-unknown-unknown
+
+schema:
+    cargo run --features schema --bin generate-schema -- deployment/schema.json
 
 plugin-path:
     @if [ ! -f target/wasm32-unknown-unknown/release/dprint_plugin_svg.wasm ]; then just build-wasm; fi

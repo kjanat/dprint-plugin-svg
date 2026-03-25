@@ -1,72 +1,164 @@
 {
 	"$schema": "http://json-schema.org/draft-07/schema#",
-	"$id": "https://plugins.dprint.dev/kjanat/dprint-plugin-svg/0.0.0/schema.json",
+	"title": "DprintSvgConfigSchema",
+	"description": "Top-level configuration schema for the dprint SVG plugin.\n\nAll fields are optional — omitted values fall back to dprint global config or built-in defaults.",
 	"type": "object",
 	"properties": {
-		"locked": {
-			"description": "Whether the configuration is not allowed to be overridden or extended.",
-			"type": "boolean"
-		},
-		"lineWidth": {
-			"description": "Fallback line width for formatting decisions when maxInlineTagWidth is not provided.",
-			"type": "number",
-			"default": 100
-		},
-		"maxInlineTagWidth": {
-			"description": "Maximum inline tag width before wrapping attributes or children.",
-			"type": "number",
-			"default": 100
-		},
-		"useTabs": {
-			"description": "Use tabs for indentation instead of spaces.",
-			"type": "boolean",
-			"default": true
-		},
-		"indentWidth": {
-			"description": "Indent width when useTabs is false.",
-			"type": "number",
-			"default": 2
-		},
-		"newLineKind": {
-			"description": "The newline kind to write.",
-			"type": "string",
-			"default": "auto",
-			"enum": ["auto", "lf", "crlf", "system"]
+		"attributeLayout": {
+			"description": "Attribute line-breaking strategy.",
+			"anyOf": [
+				{
+					"$ref": "#/definitions/AttributeLayoutConfig"
+				},
+				{
+					"type": "null"
+				}
+			]
 		},
 		"attributeSort": {
 			"description": "Attribute ordering strategy.",
-			"type": "string",
-			"default": "canonical",
-			"enum": ["none", "canonical", "alphabetical"]
-		},
-		"attributeLayout": {
-			"description": "Attribute line-breaking strategy.",
-			"type": "string",
-			"default": "auto",
-			"enum": ["auto", "single-line", "multi-line"]
+			"anyOf": [
+				{
+					"$ref": "#/definitions/AttributeSortConfig"
+				},
+				{
+					"type": "null"
+				}
+			]
 		},
 		"attributesPerLine": {
 			"description": "Maximum number of attributes per line in multi-line mode.",
-			"type": "number",
-			"minimum": 1,
-			"default": 1
+			"type": [
+				"integer",
+				"null"
+			],
+			"format": "uint32",
+			"minimum": 1.0
 		},
-		"spaceBeforeSelfClose": {
-			"description": "Whether to include a space before '/>' in self-closing tags.",
-			"type": "boolean",
-			"default": true
+		"indentWidth": {
+			"description": "Indent width when useTabs is false.",
+			"type": [
+				"integer",
+				"null"
+			],
+			"format": "uint8",
+			"minimum": 1.0
+		},
+		"lineWidth": {
+			"description": "Fallback line width for formatting decisions when maxInlineTagWidth is not provided.",
+			"type": [
+				"integer",
+				"null"
+			],
+			"format": "uint32",
+			"minimum": 1.0
+		},
+		"locked": {
+			"description": "Whether the configuration is not allowed to be overridden or extended.",
+			"type": [
+				"boolean",
+				"null"
+			]
+		},
+		"maxInlineTagWidth": {
+			"description": "Maximum inline tag width before wrapping attributes or children.",
+			"type": [
+				"integer",
+				"null"
+			],
+			"format": "uint32",
+			"minimum": 1.0
+		},
+		"newLineKind": {
+			"description": "The newline kind to write.",
+			"anyOf": [
+				{
+					"$ref": "#/definitions/NewLineKindSchema"
+				},
+				{
+					"type": "null"
+				}
+			]
 		},
 		"quoteStyle": {
 			"description": "Quote style for attribute values.",
-			"type": "string",
-			"default": "preserve",
-			"enum": ["preserve", "double", "single"]
+			"anyOf": [
+				{
+					"$ref": "#/definitions/QuoteStyleConfig"
+				},
+				{
+					"type": "null"
+				}
+			]
+		},
+		"spaceBeforeSelfClose": {
+			"description": "Whether to include a space before '/>' in self-closing tags.",
+			"type": [
+				"boolean",
+				"null"
+			]
+		},
+		"useTabs": {
+			"description": "Use tabs for indentation instead of spaces.",
+			"type": [
+				"boolean",
+				"null"
+			]
 		},
 		"wrappedAttributeIndent": {
 			"description": "Indent style for wrapped attributes.",
-			"type": "string",
-			"default": "one-level",
-			"enum": ["one-level", "align-to-tag-name"]
+			"anyOf": [
+				{
+					"$ref": "#/definitions/WrappedAttributeIndentConfig"
+				},
+				{
+					"type": "null"
+				}
+			]
 		}
-	}
+	},
+	"definitions": {
+		"AttributeLayoutConfig": {
+			"type": "string",
+			"enum": [
+				"auto",
+				"single-line",
+				"multi-line"
+			]
+		},
+		"AttributeSortConfig": {
+			"type": "string",
+			"enum": [
+				"none",
+				"canonical",
+				"alphabetical"
+			]
+		},
+		"NewLineKindSchema": {
+			"description": "Newline style. Kept here because [`dprint_core::configuration::RawNewLineKind`] is a foreign type that cannot derive `JsonSchema`.",
+			"type": "string",
+			"enum": [
+				"auto",
+				"lf",
+				"crlf",
+				"system"
+			]
+		},
+		"QuoteStyleConfig": {
+			"type": "string",
+			"enum": [
+				"preserve",
+				"double",
+				"single"
+			]
+		},
+		"WrappedAttributeIndentConfig": {
+			"type": "string",
+			"enum": [
+				"one-level",
+				"align-to-tag-name"
+			]
+		}
+	},
+	"$id": "https://plugins.dprint.dev/kjanat/dprint-plugin-svg/0.1.0/schema.json"
 }

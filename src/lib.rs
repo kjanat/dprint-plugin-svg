@@ -14,10 +14,14 @@ use svg_format::{
     format_with_options,
 };
 
+#[cfg(feature = "schema")]
+pub mod schema;
+
 #[derive(Default)]
 pub struct SvgWasmPluginHandler;
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 #[serde(rename_all = "kebab-case")]
 pub enum AttributeSortConfig {
     None,
@@ -32,6 +36,7 @@ dprint_core::generate_str_to_from![
 ];
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 #[serde(rename_all = "kebab-case")]
 pub enum AttributeLayoutConfig {
     Auto,
@@ -46,6 +51,7 @@ dprint_core::generate_str_to_from![
 ];
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 #[serde(rename_all = "kebab-case")]
 pub enum QuoteStyleConfig {
     Preserve,
@@ -60,6 +66,7 @@ dprint_core::generate_str_to_from![
 ];
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 #[serde(rename_all = "kebab-case")]
 pub enum WrappedAttributeIndentConfig {
     OneLevel,
