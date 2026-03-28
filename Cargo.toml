@@ -26,7 +26,11 @@ dprint-core = { version = "0.67", features = ["wasm"] }
 schemars    = { version = "0.8", optional = true }
 serde       = { version = "1", features = ["derive"] }
 serde_json  = { version = "1", features = ["preserve_order"] }
-svg-format  = { package = "svg-format", path = "../svg-language-server/crates/svg-format" }
+
+[dependencies.svg-format]
+package = "svg-format"
+git     = "https://github.com/kjanat/svg-language-server"  # path    = "../svg-language-server/crates/svg-format"
+rev     = "15be81359be505a64b8515b9d48dc9aa40228adc"
 
 [features]
 default = []
