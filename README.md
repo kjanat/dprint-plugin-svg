@@ -2,6 +2,16 @@
 
 dprint Wasm plugin for formatting SVG files.
 
+## Install from registry
+
+After the first tagged release has been published, add the plugin with:
+
+```sh
+dprint config add kjanat/svg
+```
+
+This installs the hosted `plugin.wasm` and schema URL in your dprint config.
+
 ## Build
 
 ```sh
@@ -19,7 +29,7 @@ Or print the absolute path:
 just plugin-path
 ```
 
-## Use in dprint
+## Use local build in dprint
 
 ```json
 {
@@ -33,13 +43,24 @@ just plugin-path
 }
 ```
 
+If you also use the `markup` formatter plugin, exclude SVG files from it so this
+plugin is the only formatter for `*.svg`:
+
+```json
+{
+	"markup": {
+		"associations": ["!**/*.svg"]
+	}
+}
+```
+
 ## Supported `svg` Config
 
 - `lineWidth` (number)
 - `maxInlineTagWidth` (number)
 - `useTabs` (boolean)
 - `indentWidth` (number)
-- `newLineKind` (`"auto" | "lf" | "crlf" | "system"`)
+- `newLineKind` (`"auto" | "lf" | "crlf"`)
 - `attributeSort` (`"none" | "canonical" | "alphabetical"`)
 - `attributeLayout` (`"auto" | "single-line" | "multi-line"`)
 - `attributesPerLine` (number > 0)

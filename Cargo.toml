@@ -8,6 +8,7 @@ repository  = "https://github.com/kjanat/dprint-plugin-svg"
 license     = "MIT"
 keywords    = ["dprint", "formatter", "svg", "wasm"]
 categories  = ["development-tools", "text-editors"]
+publish     = false
 autobins    = false
 
 [lib]

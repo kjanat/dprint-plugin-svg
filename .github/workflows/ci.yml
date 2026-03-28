@@ -1,29 +1,29 @@
 name: CI
-
 on:
   pull_request:
   push: { branches: [master] }
-
-permissions:
-  contents: read
+permissions: { contents: read }
 
 jobs:
   check:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
+      - uses: taiki-e/install-action@just
+      - uses: kjanat/install-dprint@v1
+      - uses: tombi-toml/setup-tombi@v1
 
       - uses: dtolnay/rust-toolchain@stable
         with: { targets: wasm32-unknown-unknown }
 
-      - name: Format
-        run: cargo fmt --all --check
+      - name: Format check
+        run: dprint check
 
       - name: Lint
-        run: cargo clippy --all-targets --all-features -- -D warnings
+        run: just lint
 
       - name: Test
-        run: cargo test --all-targets --all-features
+        run: just test
 
       - name: Build Wasm
-        run: cargo build --release --target wasm32-unknown-unknown
+        run: just build-wasm
