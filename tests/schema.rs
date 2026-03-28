@@ -72,7 +72,7 @@ fn schema_enum_variants_match_expected_values() {
             "WrappedAttributeIndentConfig",
             &["one-level", "align-to-tag-name"],
         ),
-        ("NewLineKindSchema", &["auto", "lf", "crlf", "system"]),
+        ("NewLineKindConfig", &["auto", "lf", "crlf"]),
     ];
 
     for (name, variants) in expected {

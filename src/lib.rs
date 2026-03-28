@@ -1,8 +1,7 @@
 use anyhow::{Result, anyhow};
 use dprint_core::configuration::{
     ConfigKeyMap, ConfigurationDiagnostic, GlobalConfiguration, NewLineKind,
-    ParseConfigurationError, RawNewLineKind, get_unknown_property_diagnostics, get_value,
-    resolve_new_line_kind,
+    ParseConfigurationError, get_unknown_property_diagnostics, get_value, resolve_new_line_kind,
 };
 use dprint_core::plugins::{
     CheckConfigUpdatesMessage, ConfigChange, FileMatchingInfo, FormatResult, PluginInfo,
@@ -76,6 +75,21 @@ dprint_core::generate_str_to_from![
     WrappedAttributeIndentConfig,
     [OneLevel, "one-level"],
     [AlignToTagName, "align-to-tag-name"]
+];
+
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+#[serde(rename_all = "kebab-case")]
+pub enum NewLineKindConfig {
+    Auto,
+    Lf,
+    Crlf,
+}
+dprint_core::generate_str_to_from![
+    NewLineKindConfig,
+    [Auto, "auto"],
+    [Lf, "lf"],
+    [Crlf, "crlf"]
 ];
 
 #[derive(Clone, Serialize)]
@@ -168,29 +182,22 @@ impl SyncPluginHandler<Configuration> for SvgWasmPluginHandler {
             WrappedAttributeIndentConfig::OneLevel,
             &mut diagnostics,
         );
-        let global_raw_new_line_kind = match global_config.new_line_kind {
-            Some(NewLineKind::Auto) => RawNewLineKind::Auto,
-            Some(NewLineKind::LineFeed) => RawNewLineKind::LineFeed,
-            Some(NewLineKind::CarriageReturnLineFeed) => RawNewLineKind::CarriageReturnLineFeed,
-            None => RawNewLineKind::Auto,
+        let global_new_line_default = match global_config.new_line_kind {
+            Some(NewLineKind::Auto) => NewLineKindConfig::Auto,
+            Some(NewLineKind::LineFeed) => NewLineKindConfig::Lf,
+            Some(NewLineKind::CarriageReturnLineFeed) => NewLineKindConfig::Crlf,
+            None => NewLineKindConfig::Auto,
         };
-        let raw_new_line_kind = get_value(
+        let new_line_kind_config = get_value(
             &mut config,
             "newLineKind",
-            global_raw_new_line_kind,
+            global_new_line_default,
             &mut diagnostics,
         );
-        let new_line_kind = match raw_new_line_kind {
-            RawNewLineKind::Auto => NewLineKind::Auto,
-            RawNewLineKind::LineFeed => NewLineKind::LineFeed,
-            RawNewLineKind::CarriageReturnLineFeed => NewLineKind::CarriageReturnLineFeed,
-            RawNewLineKind::System => {
-                if cfg!(windows) {
-                    NewLineKind::CarriageReturnLineFeed
-                } else {
-                    NewLineKind::LineFeed
-                }
-            }
+        let new_line_kind = match new_line_kind_config {
+            NewLineKindConfig::Auto => NewLineKind::Auto,
+            NewLineKindConfig::Lf => NewLineKind::LineFeed,
+            NewLineKindConfig::Crlf => NewLineKind::CarriageReturnLineFeed,
         };
 
         if attributes_per_line == 0 {
@@ -205,7 +212,7 @@ impl SyncPluginHandler<Configuration> for SvgWasmPluginHandler {
 
         PluginResolveConfigurationResult {
             file_matching: FileMatchingInfo {
-                file_extensions: vec!["svg".to_string(), "svgz".to_string()],
+                file_extensions: vec!["svg".to_string()],
                 file_names: Vec::new(),
             },
             diagnostics,

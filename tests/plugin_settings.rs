@@ -210,3 +210,64 @@ fn long_path_data_is_preserved() {
     let expected = "<svg>\n    <path d=\"m19.6 66.5 19.7-11 .3-1-.3-.5h-1l-3.3-.2-11.2-.3\" style=\"fill:#d97959\" />\n</svg>";
     assert_eq!(output, expected);
 }
+
+#[test]
+fn formatting_is_idempotent() {
+    let inputs: &[(&str, &str)] = &[
+        (
+            "defaults-global.dprint.json",
+            "<svg><rect y='2' x='1' id='x' class='c'/></svg>",
+        ),
+        (
+            "alphabetical-double-quotes.dprint.json",
+            "<svg><rect y='2' x='1' id='x' class='c'/></svg>",
+        ),
+        ("crlf-newline.dprint.json", "<svg><rect/></svg>"),
+        (
+            "multiline-align.dprint.json",
+            "<svg><linearGradient id=\"sky\" x1=\"0%\" y1=\"0%\"></linearGradient></svg>",
+        ),
+    ];
+
+    for (fixture, input) in inputs {
+        let result = resolve_configuration(fixture);
+        assert!(result.diagnostics.is_empty(), "diagnostics in {fixture}");
+
+        let first = format_with_config(&result.config, input)
+            .unwrap_or_else(|| panic!("first format should change {fixture}"));
+        let second = format_with_config(&result.config, &first);
+        assert!(
+            second.is_none(),
+            "second format pass should produce no changes for {fixture}"
+        );
+    }
+}
+
+#[test]
+fn unknown_config_key_produces_diagnostic() {
+    let result = resolve_configuration("unknown-key.dprint.json");
+    assert!(
+        result
+            .diagnostics
+            .iter()
+            .any(|d| d.property_name == "atributeSort"),
+        "expected diagnostic for unknown key 'atributeSort'"
+    );
+}
+
+#[test]
+fn format_rejects_invalid_utf8() {
+    let result = resolve_configuration("defaults-global.dprint.json");
+    let mut handler = SvgWasmPluginHandler;
+    let token = NullCancellationToken;
+    let request = SyncFormatRequest {
+        file_path: Path::new("bad.svg"),
+        file_bytes: vec![0xFF, 0xFE],
+        config_id: FormatConfigId::from_raw(1),
+        config: &result.config,
+        range: None,
+        token: &token,
+    };
+    let err = handler.format(request, |_| Ok(None));
+    assert!(err.is_err(), "invalid UTF-8 should return Err");
+}

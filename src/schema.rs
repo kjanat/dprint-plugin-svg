@@ -8,19 +8,9 @@ use schemars::JsonSchema;
 use serde::Serialize;
 
 use crate::{
-    AttributeLayoutConfig, AttributeSortConfig, QuoteStyleConfig, WrappedAttributeIndentConfig,
+    AttributeLayoutConfig, AttributeSortConfig, NewLineKindConfig, QuoteStyleConfig,
+    WrappedAttributeIndentConfig,
 };
-
-/// Newline style. Kept here because [`dprint_core::configuration::RawNewLineKind`]
-/// is a foreign type that cannot derive `JsonSchema`.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize, JsonSchema)]
-#[serde(rename_all = "kebab-case")]
-pub enum NewLineKindSchema {
-    Auto,
-    Lf,
-    Crlf,
-    System,
-}
 
 /// Top-level configuration schema for the dprint SVG plugin.
 ///
@@ -49,7 +39,7 @@ pub struct DprintSvgConfigSchema {
     pub indent_width: Option<u8>,
 
     /// The newline kind to write.
-    pub new_line_kind: Option<NewLineKindSchema>,
+    pub new_line_kind: Option<NewLineKindConfig>,
 
     /// Attribute ordering strategy.
     pub attribute_sort: Option<AttributeSortConfig>,

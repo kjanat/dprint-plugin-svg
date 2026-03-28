@@ -24,6 +24,7 @@ build-wasm:
 
 schema:
     cargo run --features schema --bin generate-schema -- deployment/schema.json
+    dprint fmt --log-level error
 
 plugin-path:
     @if [ ! -f target/wasm32-unknown-unknown/release/dprint_plugin_svg.wasm ]; then just build-wasm; fi

@@ -73,7 +73,7 @@
 			"description": "The newline kind to write.",
 			"anyOf": [
 				{
-					"$ref": "#/definitions/NewLineKindSchema"
+					"$ref": "#/definitions/NewLineKindConfig"
 				},
 				{
 					"type": "null"
@@ -134,14 +134,12 @@
 				"alphabetical"
 			]
 		},
-		"NewLineKindSchema": {
-			"description": "Newline style. Kept here because [`dprint_core::configuration::RawNewLineKind`] is a foreign type that cannot derive `JsonSchema`.",
+		"NewLineKindConfig": {
 			"type": "string",
 			"enum": [
 				"auto",
 				"lf",
-				"crlf",
-				"system"
+				"crlf"
 			]
 		},
 		"QuoteStyleConfig": {

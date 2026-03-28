@@ -8,12 +8,16 @@ repository  = "https://github.com/kjanat/dprint-plugin-svg"
 license     = "MIT"
 keywords    = ["dprint", "formatter", "svg", "wasm"]
 categories  = ["development-tools", "text-editors"]
+autobins    = false
 
 [lib]
 crate-type = ["cdylib", "lib"]
+name       = "dprint_plugin_svg"
+path       = "src/lib.rs"
 
 [[bin]]
 name              = "generate-schema"
+path              = "src/bin/generate-schema.rs"
 required-features = ["schema"]
 
 [dependencies]
