@@ -3,10 +3,9 @@
 use std::fs;
 use std::path::PathBuf;
 
-use schemars::schema_for;
 use serde_json::Value;
 
-use dprint_plugin_svg::schema::{DprintSvgConfigSchema, generate_schema_value};
+use dprint_plugin_svg::schema::{generate_root_schema, generate_schema_value};
 
 fn deployment_schema_path() -> PathBuf {
     PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("deployment/schema.json")
@@ -14,14 +13,14 @@ fn deployment_schema_path() -> PathBuf {
 
 #[test]
 fn schema_serializes_to_valid_json() {
-    let schema = schema_for!(DprintSvgConfigSchema);
+    let schema = generate_root_schema();
     let json = serde_json::to_string_pretty(&schema).expect("schema should serialize to JSON");
     let _: Value = serde_json::from_str(&json).expect("serialized schema should be valid JSON");
 }
 
 #[test]
 fn schema_has_expected_properties() {
-    let schema = schema_for!(DprintSvgConfigSchema);
+    let schema = generate_root_schema();
     let value = serde_json::to_value(&schema).expect("schema should convert to Value");
     let properties = value["properties"]
         .as_object()
@@ -76,7 +75,7 @@ fn generated_schema_uses_stable_top_level_key_order() {
 
 #[test]
 fn schema_enum_variants_match_expected_values() {
-    let schema = schema_for!(DprintSvgConfigSchema);
+    let schema = generate_root_schema();
     let value = serde_json::to_value(&schema).expect("schema should convert to Value");
     let definitions = value["definitions"]
         .as_object()
@@ -115,7 +114,7 @@ fn schema_enum_variants_match_expected_values() {
 
 #[test]
 fn attributes_per_line_minimum_is_one() {
-    let schema = schema_for!(DprintSvgConfigSchema);
+    let schema = generate_root_schema();
     let value = serde_json::to_value(&schema).expect("schema should convert to Value");
     let apl = &value["properties"]["attributesPerLine"];
 

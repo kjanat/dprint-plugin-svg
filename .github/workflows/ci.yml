@@ -12,11 +12,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
-        with: { token: "${{ github.token }}" }
-
-      - name: Setup private dependencies
-        uses: ./.github/actions/setup-private-deps
-        with: { ssh-private-key: "${{ secrets.SVG_SLS_DEPLOY_KEY }}" }
 
       - uses: dtolnay/rust-toolchain@stable
         with: { targets: wasm32-unknown-unknown }

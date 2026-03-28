@@ -4,7 +4,7 @@
 //! from [`crate`] (which conditionally derive `JsonSchema`) so there is a
 //! single source of truth for enum variants.
 
-use schemars::{JsonSchema, schema_for};
+use schemars::{JsonSchema, Schema, generate::SchemaSettings};
 use serde::Serialize;
 use serde_json::{Map, Value, json};
 
@@ -62,8 +62,14 @@ pub struct DprintSvgConfigSchema {
     pub wrapped_attribute_indent: Option<WrappedAttributeIndentConfig>,
 }
 
+pub fn generate_root_schema() -> Schema {
+    SchemaSettings::draft07()
+        .into_generator()
+        .into_root_schema_for::<DprintSvgConfigSchema>()
+}
+
 pub fn generate_schema_value() -> Result<Value, serde_json::Error> {
-    let mut value = serde_json::to_value(schema_for!(DprintSvgConfigSchema))?;
+    let mut value = serde_json::to_value(generate_root_schema())?;
     finalize_schema_value(&mut value);
     Ok(value)
 }
@@ -72,6 +78,14 @@ pub fn finalize_schema_value(value: &mut Value) {
     let obj = value
         .as_object_mut()
         .expect("schema_for!(...) should serialize to an object");
+
+    if let Some(properties) = obj.get_mut("properties").and_then(Value::as_object_mut) {
+        reorder_root_keys(properties, &[]);
+    }
+
+    if let Some(definitions) = obj.get_mut("definitions").and_then(Value::as_object_mut) {
+        reorder_root_keys(definitions, &[]);
+    }
 
     obj.insert(
         "$schema".to_string(),
