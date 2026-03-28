@@ -8,6 +8,8 @@ language    = "en"
 build-dir = "book"
 
 [output.html]
-git-repository-url   = "https://github.com/kjanat/dprint-plugin-svg"
 default-theme        = "navy"
 preferred-dark-theme = "navy"
+cname                = "dprint-svg.kjanat.com"
+git-repository-url   = "https://github.com/kjanat/dprint-plugin-svg"
+edit-url-template    = "https://github.com/kjanat/dprint-plugin-svg/edit/master/docs/src/{path}"
