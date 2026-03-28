@@ -1,7 +1,8 @@
 {
 	"$schema": "http://json-schema.org/draft-07/schema#",
-	"title": "DprintSvgConfigSchema",
-	"description": "Top-level configuration schema for the dprint SVG plugin.\n\nAll fields are optional — omitted values fall back to dprint global config or built-in defaults.",
+	"$id": "https://plugins.dprint.dev/kjanat/dprint-plugin-svg/0.1.0/schema.json",
+	"title": "Top-level configuration schema for the dprint SVG plugin.",
+	"description": "All fields are optional — omitted values fall back to dprint global config or built-in defaults.",
 	"type": "object",
 	"properties": {
 		"attributeLayout": {
@@ -157,6 +158,5 @@
 				"align-to-tag-name"
 			]
 		}
-	},
-	"$id": "https://plugins.dprint.dev/kjanat/dprint-plugin-svg/0.1.0/schema.json"
+	}
 }

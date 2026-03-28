@@ -6,7 +6,7 @@ use std::path::PathBuf;
 use schemars::schema_for;
 use serde_json::Value;
 
-use dprint_plugin_svg::schema::DprintSvgConfigSchema;
+use dprint_plugin_svg::schema::{DprintSvgConfigSchema, generate_schema_value};
 
 fn deployment_schema_path() -> PathBuf {
     PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("deployment/schema.json")
@@ -48,6 +48,30 @@ fn schema_has_expected_properties() {
             "schema missing expected property: {field}"
         );
     }
+}
+
+#[test]
+fn generated_schema_uses_stable_top_level_key_order() {
+    let value = generate_schema_value().expect("schema should generate");
+    let keys: Vec<&str> = value
+        .as_object()
+        .expect("schema should be an object")
+        .keys()
+        .map(String::as_str)
+        .collect();
+
+    assert_eq!(
+        keys,
+        vec![
+            "$schema",
+            "$id",
+            "title",
+            "description",
+            "type",
+            "properties",
+            "definitions",
+        ]
+    );
 }
 
 #[test]
@@ -113,25 +137,7 @@ fn committed_schema_is_not_stale() {
     )
     .expect("committed schema should be valid JSON");
 
-    // Generate the schema the same way as the binary
-    let mut generated = serde_json::to_value(schema_for!(DprintSvgConfigSchema))
-        .expect("schema should convert to Value");
-
-    // Inject the same metadata the binary adds
-    let obj = generated
-        .as_object_mut()
-        .expect("generated schema should be an object");
-    obj.insert(
-        "$schema".to_string(),
-        Value::String("http://json-schema.org/draft-07/schema#".to_string()),
-    );
-    obj.insert(
-        "$id".to_string(),
-        Value::String(format!(
-            "https://plugins.dprint.dev/kjanat/dprint-plugin-svg/{}/schema.json",
-            env!("CARGO_PKG_VERSION")
-        )),
-    );
+    let generated = generate_schema_value().expect("schema should generate");
 
     assert_eq!(
         committed, generated,

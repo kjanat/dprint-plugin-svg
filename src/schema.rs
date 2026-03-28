@@ -4,15 +4,16 @@
 //! from [`crate`] (which conditionally derive `JsonSchema`) so there is a
 //! single source of truth for enum variants.
 
-use schemars::JsonSchema;
+use schemars::{JsonSchema, schema_for};
 use serde::Serialize;
+use serde_json::{Map, Value, json};
 
 use crate::{
     AttributeLayoutConfig, AttributeSortConfig, NewLineKindConfig, QuoteStyleConfig,
     WrappedAttributeIndentConfig,
 };
 
-/// Top-level configuration schema for the dprint SVG plugin.
+/// # Top-level configuration schema for the dprint SVG plugin.
 ///
 /// All fields are optional — omitted values fall back to dprint global
 /// config or built-in defaults.
@@ -59,4 +60,60 @@ pub struct DprintSvgConfigSchema {
 
     /// Indent style for wrapped attributes.
     pub wrapped_attribute_indent: Option<WrappedAttributeIndentConfig>,
+}
+
+pub fn generate_schema_value() -> Result<Value, serde_json::Error> {
+    let mut value = serde_json::to_value(schema_for!(DprintSvgConfigSchema))?;
+    finalize_schema_value(&mut value);
+    Ok(value)
+}
+
+pub fn finalize_schema_value(value: &mut Value) {
+    let obj = value
+        .as_object_mut()
+        .expect("schema_for!(...) should serialize to an object");
+
+    obj.insert(
+        "$schema".to_string(),
+        json!("http://json-schema.org/draft-07/schema#"),
+    );
+    obj.insert(
+        "$id".to_string(),
+        json!(format!(
+            "https://plugins.dprint.dev/kjanat/dprint-plugin-svg/{}/schema.json",
+            env!("CARGO_PKG_VERSION")
+        )),
+    );
+
+    reorder_root_keys(
+        obj,
+        &[
+            "$schema",
+            "$id",
+            "title",
+            "description",
+            "type",
+            "properties",
+            "definitions",
+        ],
+    );
+}
+
+fn reorder_root_keys(obj: &mut Map<String, Value>, priority_keys: &[&str]) {
+    let mut existing = std::mem::take(obj);
+
+    for key in priority_keys {
+        if let Some(value) = existing.remove(*key) {
+            obj.insert((*key).to_string(), value);
+        }
+    }
+
+    let mut remaining_keys: Vec<_> = existing.keys().cloned().collect();
+    remaining_keys.sort();
+
+    for key in remaining_keys {
+        if let Some(value) = existing.remove(&key) {
+            obj.insert(key, value);
+        }
+    }
 }
