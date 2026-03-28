@@ -1,0 +1,13 @@
+[book]
+title       = "dprint-plugin-svg"
+description = "Configuration reference for the dprint SVG formatting plugin"
+authors     = ["Kaj Kowalski"]
+language    = "en"
+
+[build]
+build-dir = "book"
+
+[output.html]
+git-repository-url   = "https://github.com/kjanat/dprint-plugin-svg"
+default-theme        = "navy"
+preferred-dark-theme = "navy"

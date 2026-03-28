@@ -33,13 +33,13 @@ just plugin-path
 
 ```json
 {
-	"plugins": ["./target/wasm32-unknown-unknown/release/dprint_plugin_svg.wasm"],
-	"svg": {
-		"attributeSort": "canonical",
-		"attributeLayout": "auto",
-		"attributesPerLine": 1,
-		"wrappedAttributeIndent": "one-level"
-	}
+  "plugins": ["./target/wasm32-unknown-unknown/release/dprint_plugin_svg.wasm"],
+  "svg": {
+    "attributeSort": "canonical",
+    "attributeLayout": "auto",
+    "attributesPerLine": 1,
+    "wrappedAttributeIndent": "one-level"
+  }
 }
 ```
 
@@ -48,9 +48,9 @@ plugin is the only formatter for `*.svg`:
 
 ```json
 {
-	"markup": {
-		"associations": ["!**/*.svg"]
-	}
+  "markup": {
+    "associations": ["!**/*.svg"]
+  }
 }
 ```
 

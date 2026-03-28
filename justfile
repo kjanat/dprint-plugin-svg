@@ -5,6 +5,7 @@ alias l := lint
 alias t := test
 alias bw := build-wasm
 alias s := schema
+alias b := book
 alias cmt := commit
 
 default:
@@ -25,6 +26,9 @@ build-wasm:
 schema:
     cargo run --features schema --bin generate-schema -- deployment/schema.json
     dprint fmt --log-level error
+
+book:
+    mdbook build docs
 
 plugin-path:
     @if [ ! -f target/wasm32-unknown-unknown/release/dprint_plugin_svg.wasm ]; then just build-wasm; fi

@@ -1,7 +1,7 @@
 {
-	"svg": {
-		"useTabs": false,
-		"indentWidth": 4,
-		"spaceBeforeSelfClose": false
-	}
+  "svg": {
+    "useTabs": false,
+    "indentWidth": 4,
+    "spaceBeforeSelfClose": false
+  }
 }
