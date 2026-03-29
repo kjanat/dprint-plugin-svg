@@ -49,6 +49,10 @@ pub struct SvgWasmPluginHandler;
 /// ```
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+#[cfg_attr(
+    feature = "schema",
+    schemars(title = "attributeSort", description = "Attribute ordering strategy.")
+)]
 #[serde(rename_all = "kebab-case")]
 pub enum AttributeSortConfig {
     /// Keep original source order.
@@ -87,6 +91,10 @@ dprint_core::generate_str_to_from![
 /// ```
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+#[cfg_attr(
+    feature = "schema",
+    schemars(title = "attributeLayout", description = "Attribute wrapping mode.")
+)]
 #[serde(rename_all = "kebab-case")]
 pub enum AttributeLayoutConfig {
     /// Wrap only when inline width exceeds `maxInlineTagWidth`.
@@ -119,6 +127,13 @@ dprint_core::generate_str_to_from![
 /// ```
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+#[cfg_attr(
+    feature = "schema",
+    schemars(
+        title = "quoteStyle",
+        description = "Quoting strategy for attribute values."
+    )
+)]
 #[serde(rename_all = "kebab-case")]
 pub enum QuoteStyleConfig {
     /// Keep the original quote character.
@@ -154,6 +169,13 @@ dprint_core::generate_str_to_from![
 /// ```
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+#[cfg_attr(
+    feature = "schema",
+    schemars(
+        title = "wrappedAttributeIndent",
+        description = "Indentation strategy for wrapped attributes."
+    )
+)]
 #[serde(rename_all = "kebab-case")]
 pub enum WrappedAttributeIndentConfig {
     /// Indent one level deeper than the tag.
@@ -170,6 +192,10 @@ dprint_core::generate_str_to_from![
 /// # Line ending style.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+#[cfg_attr(
+    feature = "schema",
+    schemars(title = "newLineKind", description = "Line ending style.")
+)]
 #[serde(rename_all = "kebab-case")]
 pub enum NewLineKindConfig {
     /// Detect from the source file.
@@ -211,6 +237,13 @@ dprint_core::generate_str_to_from![
 /// ```
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+#[cfg_attr(
+    feature = "schema",
+    schemars(
+        title = "textContent",
+        description = "How text-node whitespace is handled."
+    )
+)]
 #[serde(rename_all = "kebab-case")]
 pub enum TextContentModeConfig {
     /// Collapse whitespace runs to single spaces.
@@ -267,6 +300,13 @@ dprint_core::generate_str_to_from![
 /// ```
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+#[cfg_attr(
+    feature = "schema",
+    schemars(
+        title = "blankLines",
+        description = "How blank lines between sibling elements are handled."
+    )
+)]
 #[serde(rename_all = "kebab-case")]
 pub enum BlankLinesConfig {
     /// Strip all blank lines between siblings.

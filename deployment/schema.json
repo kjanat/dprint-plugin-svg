@@ -1,12 +1,12 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://plugins.dprint.dev/kjanat/dprint-plugin-svg/0.2.0/schema.json",
-  "title": "Top-level configuration schema for the dprint SVG plugin.",
-  "description": "All fields are optional — omitted values fall back to dprint global\nconfig or built-in defaults. Only plugin-owned options emit a JSON\nSchema `\"default\"`; options inherited from globals (`lineWidth`,\n`useTabs`, `indentWidth`, `newLineKind`) describe the fallback instead.",
+  "title": "dprint SVG plugin configuration",
+  "description": "All fields are optional. Options not set here inherit from the dprint global configuration.",
   "type": "object",
   "properties": {
     "attributeLayout": {
-      "description": "Attribute line-breaking strategy.",
+      "description": "Attribute wrapping mode. https://dprint-svg.kjanat.com/config/attribute-layout.html",
       "anyOf": [
         {
           "$ref": "#/definitions/AttributeLayoutConfig"
@@ -18,7 +18,7 @@
       "default": "auto"
     },
     "attributeSort": {
-      "description": "Attribute ordering strategy.",
+      "description": "Attribute ordering strategy. https://dprint-svg.kjanat.com/config/attribute-sort.html",
       "anyOf": [
         {
           "$ref": "#/definitions/AttributeSortConfig"
@@ -30,7 +30,7 @@
       "default": "canonical"
     },
     "attributesPerLine": {
-      "description": "Maximum number of attributes per line in multi-line mode.",
+      "description": "Maximum attributes per line in multi-line mode. https://dprint-svg.kjanat.com/config/attributes-per-line.html",
       "type": [
         "integer",
         "null"
@@ -40,7 +40,7 @@
       "default": 1
     },
     "blankLines": {
-      "description": "How blank lines between sibling elements are handled.",
+      "description": "How blank lines between sibling elements are handled. https://dprint-svg.kjanat.com/config/blank-lines.html",
       "anyOf": [
         {
           "$ref": "#/definitions/BlankLinesConfig"
@@ -52,7 +52,7 @@
       "default": "truncate"
     },
     "formatEmbeddedContent": {
-      "description": "Whether to delegate embedded content (CSS, JS, HTML) to host plugins.",
+      "description": "Delegate embedded content (CSS, JS, HTML) to host plugins. https://dprint-svg.kjanat.com/config/format-embedded-content.html",
       "type": [
         "boolean",
         "null"
@@ -60,7 +60,7 @@
       "default": true
     },
     "indentWidth": {
-      "description": "Indent width when useTabs is false. Inherited from dprint global\n`indentWidth` when unset.",
+      "description": "Indent width when useTabs is false. Inherited from dprint global indentWidth when unset. https://dprint-svg.kjanat.com/config/indent-width.html",
       "type": [
         "integer",
         "null"
@@ -70,7 +70,7 @@
       "maximum": 255
     },
     "lineWidth": {
-      "description": "Fallback line width for formatting decisions when maxInlineTagWidth is\nnot provided. Inherited from dprint global `lineWidth` when unset.",
+      "description": "Fallback line width. Inherited from dprint global lineWidth when unset. https://dprint-svg.kjanat.com/config/line-width.html",
       "type": [
         "integer",
         "null"
@@ -86,7 +86,7 @@
       ]
     },
     "maxInlineTagWidth": {
-      "description": "Maximum inline tag width before wrapping attributes or children.",
+      "description": "Maximum inline tag width before wrapping attributes. https://dprint-svg.kjanat.com/config/max-inline-tag-width.html",
       "type": [
         "integer",
         "null"
@@ -95,7 +95,7 @@
       "minimum": 1
     },
     "newLineKind": {
-      "description": "The newline kind to write. Inherited from dprint global `newLineKind`\nwhen unset.",
+      "description": "Line ending style. Inherited from dprint global newLineKind when unset. https://dprint-svg.kjanat.com/config/new-line-kind.html",
       "anyOf": [
         {
           "$ref": "#/definitions/NewLineKindConfig"
@@ -106,7 +106,7 @@
       ]
     },
     "quoteStyle": {
-      "description": "Quote style for attribute values.",
+      "description": "Quote style for attribute values. https://dprint-svg.kjanat.com/config/quote-style.html",
       "anyOf": [
         {
           "$ref": "#/definitions/QuoteStyleConfig"
@@ -118,7 +118,7 @@
       "default": "preserve"
     },
     "spaceBeforeSelfClose": {
-      "description": "Whether to include a space before '/>' in self-closing tags.",
+      "description": "Include a space before /> in self-closing tags. https://dprint-svg.kjanat.com/config/space-before-self-close.html",
       "type": [
         "boolean",
         "null"
@@ -126,7 +126,7 @@
       "default": true
     },
     "textContent": {
-      "description": "How text-node whitespace is handled.",
+      "description": "How text-node whitespace is handled. https://dprint-svg.kjanat.com/config/text-content.html",
       "anyOf": [
         {
           "$ref": "#/definitions/TextContentModeConfig"
@@ -138,14 +138,14 @@
       "default": "maintain"
     },
     "useTabs": {
-      "description": "Use tabs for indentation instead of spaces. Inherited from dprint\nglobal `useTabs` when unset.",
+      "description": "Use tabs for indentation. Inherited from dprint global useTabs when unset. https://dprint-svg.kjanat.com/config/use-tabs.html",
       "type": [
         "boolean",
         "null"
       ]
     },
     "wrappedAttributeIndent": {
-      "description": "Indent style for wrapped attributes.",
+      "description": "Indentation strategy for wrapped attributes. https://dprint-svg.kjanat.com/config/wrapped-attribute-indent.html",
       "anyOf": [
         {
           "$ref": "#/definitions/WrappedAttributeIndentConfig"
@@ -159,8 +159,8 @@
   },
   "definitions": {
     "AttributeLayoutConfig": {
-      "title": "Attribute wrapping mode exposed in the plugin config.",
-      "description": "Maps 1:1 to [`svg_format::AttributeLayout`].\n\n```svg\n<!-- auto: wraps when inline exceeds maxInlineTagWidth -->\n<linearGradient\n    id=\"sky\"\n    x1=\"0%\"\n    y1=\"0%\">\n</linearGradient>\n\n<!-- single-line: always one line -->\n<linearGradient id=\"sky\" x1=\"0%\" y1=\"0%\"></linearGradient>\n\n<!-- multi-line: always wrap -->\n<rect\n    id=\"box\"\n    x=\"10\" />\n```",
+      "title": "attributeLayout",
+      "description": "Attribute wrapping mode.",
       "oneOf": [
         {
           "description": "Wrap only when inline width exceeds `maxInlineTagWidth`.",
@@ -180,8 +180,8 @@
       ]
     },
     "AttributeSortConfig": {
-      "title": "Attribute ordering strategy exposed in the plugin config.",
-      "description": "Maps 1:1 to [`svg_format::AttributeSort`].\n\n```svg\n<!-- input -->\n<rect y=\"20\" x=\"10\" height=\"50\" width=\"100\" id=\"box\" />\n\n<!-- canonical (default) -->\n<rect id=\"box\" x=\"10\" y=\"20\" width=\"100\" height=\"50\" />\n\n<!-- alphabetical -->\n<rect height=\"50\" id=\"box\" width=\"100\" x=\"10\" y=\"20\" />\n```",
+      "title": "attributeSort",
+      "description": "Attribute ordering strategy.",
       "oneOf": [
         {
           "description": "Keep original source order.",
@@ -201,8 +201,8 @@
       ]
     },
     "BlankLinesConfig": {
-      "title": "How blank lines between sibling elements are handled.",
-      "description": "Maps 1:1 to [`svg_format::BlankLines`].\n\n```svg\n<!-- input -->\n<svg>\n    <rect />\n\n\n    <!--legend-->\n    <circle />\n</svg>\n\n<!-- remove: all gaps stripped -->\n<svg>\n    <rect />\n    <!--legend-->\n    <circle />\n</svg>\n\n<!-- truncate (default): 2+ collapsed to 1 -->\n<svg>\n    <rect />\n\n    <!--legend-->\n    <circle />\n</svg>\n\n<!-- insert: force gap between every sibling -->\n<svg>\n    <rect />\n\n    <!--legend-->\n\n    <circle />\n</svg>\n```",
+      "title": "blankLines",
+      "description": "How blank lines between sibling elements are handled.",
       "oneOf": [
         {
           "description": "Strip all blank lines between siblings.",
@@ -227,7 +227,8 @@
       ]
     },
     "NewLineKindConfig": {
-      "title": "Line ending style.",
+      "title": "newLineKind",
+      "description": "Line ending style.",
       "oneOf": [
         {
           "description": "Detect from the source file.",
@@ -247,8 +248,8 @@
       ]
     },
     "QuoteStyleConfig": {
-      "title": "Quoting strategy for attribute values.",
-      "description": "Maps 1:1 to [`svg_format::QuoteStyle`].\n\n```svg\n<!-- preserve: keeps original -->\n<rect id='box' class=\"hero\" />\n\n<!-- double -->\n<rect id=\"box\" class=\"hero\" />\n\n<!-- single -->\n<rect id='box' class='hero' />\n```",
+      "title": "quoteStyle",
+      "description": "Quoting strategy for attribute values.",
       "oneOf": [
         {
           "description": "Keep the original quote character.",
@@ -268,8 +269,8 @@
       ]
     },
     "TextContentModeConfig": {
-      "title": "How the formatter handles whitespace in text nodes.",
-      "description": "Maps 1:1 to [`svg_format::TextContentMode`].\n\n```svg\n<!-- input -->\n<text>  hello   world  </text>\n\n<!-- collapse -->\n<text>\n    hello world\n</text>\n\n<!-- maintain (default): preserves relative indentation -->\n<text>\n    hello   world\n</text>\n\n<!-- prettify: trims each line -->\n<text>\n    hello   world\n</text>\n```",
+      "title": "textContent",
+      "description": "How text-node whitespace is handled.",
       "oneOf": [
         {
           "description": "Collapse whitespace runs to single spaces.",
@@ -289,8 +290,8 @@
       ]
     },
     "WrappedAttributeIndentConfig": {
-      "title": "Indentation strategy for wrapped attributes.",
-      "description": "Maps 1:1 to [`svg_format::WrappedAttributeIndent`].\n\n```svg\n<!-- one-level (default) -->\n<linearGradient\n    id=\"sky\"\n    x1=\"0%\">\n</linearGradient>\n\n<!-- align-to-tag-name -->\n<linearGradient\n                id=\"sky\"\n                x1=\"0%\">\n</linearGradient>\n```",
+      "title": "wrappedAttributeIndent",
+      "description": "Indentation strategy for wrapped attributes.",
       "oneOf": [
         {
           "description": "Indent one level deeper than the tag.",

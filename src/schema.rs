@@ -20,6 +20,10 @@ use crate::{
 /// Schema `"default"`; options inherited from globals (`lineWidth`,
 /// `useTabs`, `indentWidth`, `newLineKind`) describe the fallback instead.
 #[derive(Clone, Debug, Default, Serialize, JsonSchema)]
+#[schemars(
+    title = "dprint SVG plugin configuration",
+    description = "All fields are optional. Options not set here inherit from the dprint global configuration."
+)]
 #[serde(rename_all = "camelCase")]
 pub struct DprintSvgConfigSchema {
     /// Whether the configuration is not allowed to be overridden or extended.
@@ -27,61 +31,103 @@ pub struct DprintSvgConfigSchema {
 
     /// Fallback line width for formatting decisions when maxInlineTagWidth is
     /// not provided. Inherited from dprint global `lineWidth` when unset.
-    #[schemars(range(min = 1))]
+    #[schemars(
+        range(min = 1),
+        description = "Fallback line width. Inherited from dprint global lineWidth when unset. https://dprint-svg.kjanat.com/config/line-width.html"
+    )]
     pub line_width: Option<u32>,
 
     /// Maximum inline tag width before wrapping attributes or children.
-    #[schemars(range(min = 1))]
+    #[schemars(
+        range(min = 1),
+        description = "Maximum inline tag width before wrapping attributes. https://dprint-svg.kjanat.com/config/max-inline-tag-width.html"
+    )]
     pub max_inline_tag_width: Option<u32>,
 
     /// Use tabs for indentation instead of spaces. Inherited from dprint
     /// global `useTabs` when unset.
+    #[schemars(
+        description = "Use tabs for indentation. Inherited from dprint global useTabs when unset. https://dprint-svg.kjanat.com/config/use-tabs.html"
+    )]
     pub use_tabs: Option<bool>,
 
     /// Indent width when useTabs is false. Inherited from dprint global
     /// `indentWidth` when unset.
-    #[schemars(range(min = 1))]
+    #[schemars(
+        range(min = 1),
+        description = "Indent width when useTabs is false. Inherited from dprint global indentWidth when unset. https://dprint-svg.kjanat.com/config/indent-width.html"
+    )]
     pub indent_width: Option<u8>,
 
     /// The newline kind to write. Inherited from dprint global `newLineKind`
     /// when unset.
+    #[schemars(
+        description = "Line ending style. Inherited from dprint global newLineKind when unset. https://dprint-svg.kjanat.com/config/new-line-kind.html"
+    )]
     pub new_line_kind: Option<NewLineKindConfig>,
 
     /// Attribute ordering strategy.
     #[serde(default = "defaults::attribute_sort")]
+    #[schemars(
+        description = "Attribute ordering strategy. https://dprint-svg.kjanat.com/config/attribute-sort.html"
+    )]
     pub attribute_sort: Option<AttributeSortConfig>,
 
     /// Attribute line-breaking strategy.
     #[serde(default = "defaults::attribute_layout")]
+    #[schemars(
+        description = "Attribute wrapping mode. https://dprint-svg.kjanat.com/config/attribute-layout.html"
+    )]
     pub attribute_layout: Option<AttributeLayoutConfig>,
 
     /// Maximum number of attributes per line in multi-line mode.
-    #[schemars(range(min = 1))]
+    #[schemars(
+        range(min = 1),
+        description = "Maximum attributes per line in multi-line mode. https://dprint-svg.kjanat.com/config/attributes-per-line.html"
+    )]
     #[serde(default = "defaults::attributes_per_line")]
     pub attributes_per_line: Option<u32>,
 
     /// Whether to include a space before '/>' in self-closing tags.
     #[serde(default = "defaults::space_before_self_close")]
+    #[schemars(
+        description = "Include a space before /> in self-closing tags. https://dprint-svg.kjanat.com/config/space-before-self-close.html"
+    )]
     pub space_before_self_close: Option<bool>,
 
     /// Quote style for attribute values.
     #[serde(default = "defaults::quote_style")]
+    #[schemars(
+        description = "Quote style for attribute values. https://dprint-svg.kjanat.com/config/quote-style.html"
+    )]
     pub quote_style: Option<QuoteStyleConfig>,
 
     /// Indent style for wrapped attributes.
     #[serde(default = "defaults::wrapped_attribute_indent")]
+    #[schemars(
+        description = "Indentation strategy for wrapped attributes. https://dprint-svg.kjanat.com/config/wrapped-attribute-indent.html"
+    )]
     pub wrapped_attribute_indent: Option<WrappedAttributeIndentConfig>,
 
     /// How text-node whitespace is handled.
     #[serde(default = "defaults::text_content")]
+    #[schemars(
+        description = "How text-node whitespace is handled. https://dprint-svg.kjanat.com/config/text-content.html"
+    )]
     pub text_content: Option<TextContentModeConfig>,
 
     /// How blank lines between sibling elements are handled.
     #[serde(default = "defaults::blank_lines")]
+    #[schemars(
+        description = "How blank lines between sibling elements are handled. https://dprint-svg.kjanat.com/config/blank-lines.html"
+    )]
     pub blank_lines: Option<BlankLinesConfig>,
 
     /// Whether to delegate embedded content (CSS, JS, HTML) to host plugins.
     #[serde(default = "defaults::format_embedded_content")]
+    #[schemars(
+        description = "Delegate embedded content (CSS, JS, HTML) to host plugins. https://dprint-svg.kjanat.com/config/format-embedded-content.html"
+    )]
     pub format_embedded_content: Option<bool>,
 }
 
