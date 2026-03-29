@@ -71,18 +71,22 @@ pub struct DprintSvgConfigSchema {
     pub format_embedded_content: Option<bool>,
 }
 
+/// Generate the raw JSON Schema for [`DprintSvgConfigSchema`] using draft-07.
 pub fn generate_root_schema() -> Schema {
     SchemaSettings::draft07()
         .into_generator()
         .into_root_schema_for::<DprintSvgConfigSchema>()
 }
 
+/// Generate the schema as a [`serde_json::Value`], finalized with `$schema`,
+/// `$id`, and stable key ordering.
 pub fn generate_schema_value() -> Result<Value, serde_json::Error> {
     let mut value = serde_json::to_value(generate_root_schema())?;
     finalize_schema_value(&mut value);
     Ok(value)
 }
 
+/// Inject `$schema` / `$id` metadata and sort top-level keys for stable output.
 pub fn finalize_schema_value(value: &mut Value) {
     let obj = value
         .as_object_mut()
@@ -122,6 +126,8 @@ pub fn finalize_schema_value(value: &mut Value) {
     );
 }
 
+/// Sort keys in a JSON object: `priority_keys` first (in order), then
+/// remaining keys alphabetically. Produces deterministic output.
 fn reorder_root_keys(obj: &mut Map<String, Value>, priority_keys: &[&str]) {
     let mut existing = std::mem::take(obj);
 

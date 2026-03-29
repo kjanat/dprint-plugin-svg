@@ -1,3 +1,13 @@
+//! # dprint Wasm plugin for formatting SVG files.
+//!
+//! Bridges the [`svg_format`] crate (tree-sitter-based SVG formatter) to the
+//! dprint plugin protocol. Configuration is parsed from the user's
+//! `dprint.json` and mapped to [`svg_format::FormatOptions`].
+//!
+//! Embedded `<style>`, `<script>`, and `<foreignObject>` content is delegated
+//! to other dprint plugins via the host callback when
+//! [`Configuration::format_embedded_content`] is enabled (the default).
+
 use anyhow::{Result, anyhow};
 use dprint_core::configuration::{
     ConfigKeyMap, ConfigurationDiagnostic, GlobalConfiguration, NewLineKind,
@@ -16,15 +26,36 @@ use svg_format::{
 #[cfg(feature = "schema")]
 pub mod schema;
 
+/// # The [`SyncPluginHandler`] implementation for the SVG formatter.
+///
+/// Stateless — all configuration is resolved per-request from the
+/// dprint config map.
 #[derive(Default)]
 pub struct SvgWasmPluginHandler;
 
+/// # Attribute ordering strategy exposed in the plugin config.
+///
+/// Maps 1:1 to [`svg_format::AttributeSort`].
+///
+/// ```svg
+/// <!-- input -->
+/// <rect y="20" x="10" height="50" width="100" id="box" />
+///
+/// <!-- canonical (default) -->
+/// <rect id="box" x="10" y="20" width="100" height="50" />
+///
+/// <!-- alphabetical -->
+/// <rect height="50" id="box" width="100" x="10" y="20" />
+/// ```
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 #[serde(rename_all = "kebab-case")]
 pub enum AttributeSortConfig {
+    /// Keep original source order.
     None,
+    /// SVG-aware canonical grouping (id, class, geometry, presentation, ...).
     Canonical,
+    /// Strict alphabetical order.
     Alphabetical,
 }
 dprint_core::generate_str_to_from![
@@ -34,12 +65,35 @@ dprint_core::generate_str_to_from![
     [Alphabetical, "alphabetical"]
 ];
 
+/// # Attribute wrapping mode exposed in the plugin config.
+///
+/// Maps 1:1 to [`svg_format::AttributeLayout`].
+///
+/// ```svg
+/// <!-- auto: wraps when inline exceeds maxInlineTagWidth -->
+/// <linearGradient
+///     id="sky"
+///     x1="0%"
+///     y1="0%">
+/// </linearGradient>
+///
+/// <!-- single-line: always one line -->
+/// <linearGradient id="sky" x1="0%" y1="0%"></linearGradient>
+///
+/// <!-- multi-line: always wrap -->
+/// <rect
+///     id="box"
+///     x="10" />
+/// ```
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 #[serde(rename_all = "kebab-case")]
 pub enum AttributeLayoutConfig {
+    /// Wrap only when inline width exceeds `maxInlineTagWidth`.
     Auto,
+    /// Always keep all attributes on one line.
     SingleLine,
+    /// Always wrap attributes onto separate lines.
     MultiLine,
 }
 dprint_core::generate_str_to_from![
@@ -49,12 +103,29 @@ dprint_core::generate_str_to_from![
     [MultiLine, "multi-line"]
 ];
 
+/// # Quoting strategy for attribute values.
+///
+/// Maps 1:1 to [`svg_format::QuoteStyle`].
+///
+/// ```svg
+/// <!-- preserve: keeps original -->
+/// <rect id='box' class="hero" />
+///
+/// <!-- double -->
+/// <rect id="box" class="hero" />
+///
+/// <!-- single -->
+/// <rect id='box' class='hero' />
+/// ```
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 #[serde(rename_all = "kebab-case")]
 pub enum QuoteStyleConfig {
+    /// Keep the original quote character.
     Preserve,
+    /// Normalize to double quotes.
     Double,
+    /// Normalize to single quotes.
     Single,
 }
 dprint_core::generate_str_to_from![
@@ -64,11 +135,30 @@ dprint_core::generate_str_to_from![
     [Single, "single"]
 ];
 
+/// # Indentation strategy for wrapped attributes.
+///
+/// Maps 1:1 to [`svg_format::WrappedAttributeIndent`].
+///
+/// ```svg
+/// <!-- one-level (default) -->
+/// <linearGradient
+///     id="sky"
+///     x1="0%">
+/// </linearGradient>
+///
+/// <!-- align-to-tag-name -->
+/// <linearGradient
+///                 id="sky"
+///                 x1="0%">
+/// </linearGradient>
+/// ```
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 #[serde(rename_all = "kebab-case")]
 pub enum WrappedAttributeIndentConfig {
+    /// Indent one level deeper than the tag.
     OneLevel,
+    /// Align to the column after `<tagName `.
     AlignToTagName,
 }
 dprint_core::generate_str_to_from![
@@ -77,12 +167,16 @@ dprint_core::generate_str_to_from![
     [AlignToTagName, "align-to-tag-name"]
 ];
 
+/// # Line ending style.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 #[serde(rename_all = "kebab-case")]
 pub enum NewLineKindConfig {
+    /// Detect from the source file.
     Auto,
+    /// Unix-style `\n`.
     Lf,
+    /// Windows-style `\r\n`.
     Crlf,
 }
 dprint_core::generate_str_to_from![
@@ -92,12 +186,38 @@ dprint_core::generate_str_to_from![
     [Crlf, "crlf"]
 ];
 
+/// # How the formatter handles whitespace in text nodes.
+///
+/// Maps 1:1 to [`svg_format::TextContentMode`].
+///
+/// ```svg
+/// <!-- input -->
+/// <text>  hello   world  </text>
+///
+/// <!-- collapse -->
+/// <text>
+///     hello world
+/// </text>
+///
+/// <!-- maintain (default): preserves relative indentation -->
+/// <text>
+///     hello   world
+/// </text>
+///
+/// <!-- prettify: trims each line -->
+/// <text>
+///     hello   world
+/// </text>
+/// ```
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 #[serde(rename_all = "kebab-case")]
 pub enum TextContentModeConfig {
+    /// Collapse whitespace runs to single spaces.
     Collapse,
+    /// Preserve relative indentation structure.
     Maintain,
+    /// Trim each line and re-indent to SVG depth.
     Prettify,
 }
 dprint_core::generate_str_to_from![
@@ -107,13 +227,55 @@ dprint_core::generate_str_to_from![
     [Prettify, "prettify"]
 ];
 
+/// # How blank lines between sibling elements are handled.
+///
+/// Maps 1:1 to [`svg_format::BlankLines`].
+///
+/// ```svg
+/// <!-- input -->
+/// <svg>
+///     <rect />
+///
+///
+///     <!--legend-->
+///     <circle />
+/// </svg>
+///
+/// <!-- remove: all gaps stripped -->
+/// <svg>
+///     <rect />
+///     <!--legend-->
+///     <circle />
+/// </svg>
+///
+/// <!-- truncate (default): 2+ collapsed to 1 -->
+/// <svg>
+///     <rect />
+///
+///     <!--legend-->
+///     <circle />
+/// </svg>
+///
+/// <!-- insert: force gap between every sibling -->
+/// <svg>
+///     <rect />
+///
+///     <!--legend-->
+///
+///     <circle />
+/// </svg>
+/// ```
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 #[serde(rename_all = "kebab-case")]
 pub enum BlankLinesConfig {
+    /// Strip all blank lines between siblings.
     Remove,
+    /// Keep blank lines from source verbatim.
     Preserve,
+    /// Collapse 2+ blank lines to exactly 1.
     Truncate,
+    /// Force exactly 1 blank line between every sibling.
     Insert,
 }
 dprint_core::generate_str_to_from![
@@ -124,21 +286,34 @@ dprint_core::generate_str_to_from![
     [Insert, "insert"]
 ];
 
+/// # Resolved plugin configuration.
+///
+/// Built from the user's `dprint.json` (or global defaults) during
+/// [`SvgWasmPluginHandler::resolve_config`], then passed to every
+/// [`SvgWasmPluginHandler::format`] call. Serialized back to the host
+/// for config display.
 #[derive(Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Configuration {
+    /// Threshold (columns) for switching to multi-line attributes.
     pub max_inline_tag_width: u32,
+    /// Use tabs (`true`) or spaces (`false`) for indentation.
     pub use_tabs: bool,
+    /// Spaces per indent level when `use_tabs` is false.
     pub indent_width: u8,
     pub attribute_sort: AttributeSortConfig,
     pub attribute_layout: AttributeLayoutConfig,
+    /// Max attributes emitted per line in multi-line mode.
     pub attributes_per_line: u32,
+    /// Emit a space before `/>` in self-closing tags.
     pub space_before_self_close: bool,
     pub quote_style: QuoteStyleConfig,
     pub wrapped_attribute_indent: WrappedAttributeIndentConfig,
     pub text_content: TextContentModeConfig,
     pub blank_lines: BlankLinesConfig,
+    /// Delegate `<style>`/`<script>`/`<foreignObject>` to host plugins.
     pub format_embedded_content: bool,
+    /// Resolved document line width, used for embedded content width budget.
     pub line_width: u32,
     pub new_line_kind: NewLineKind,
 }
@@ -389,6 +564,8 @@ impl SyncPluginHandler<Configuration> for SvgWasmPluginHandler {
         }
     }
 }
+
+// ── Config enum → svg_format enum mappers ───────────────────────────
 
 fn map_attribute_sort(value: AttributeSortConfig) -> AttributeSort {
     match value {

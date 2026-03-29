@@ -150,59 +150,149 @@
   },
   "definitions": {
     "AttributeLayoutConfig": {
-      "type": "string",
-      "enum": [
-        "auto",
-        "single-line",
-        "multi-line"
+      "title": "Attribute wrapping mode exposed in the plugin config.",
+      "description": "Maps 1:1 to [`svg_format::AttributeLayout`].\n\n```svg\n<!-- auto: wraps when inline exceeds maxInlineTagWidth -->\n<linearGradient\n    id=\"sky\"\n    x1=\"0%\"\n    y1=\"0%\">\n</linearGradient>\n\n<!-- single-line: always one line -->\n<linearGradient id=\"sky\" x1=\"0%\" y1=\"0%\"></linearGradient>\n\n<!-- multi-line: always wrap -->\n<rect\n    id=\"box\"\n    x=\"10\" />\n```",
+      "oneOf": [
+        {
+          "description": "Wrap only when inline width exceeds `maxInlineTagWidth`.",
+          "type": "string",
+          "const": "auto"
+        },
+        {
+          "description": "Always keep all attributes on one line.",
+          "type": "string",
+          "const": "single-line"
+        },
+        {
+          "description": "Always wrap attributes onto separate lines.",
+          "type": "string",
+          "const": "multi-line"
+        }
       ]
     },
     "AttributeSortConfig": {
-      "type": "string",
-      "enum": [
-        "none",
-        "canonical",
-        "alphabetical"
+      "title": "Attribute ordering strategy exposed in the plugin config.",
+      "description": "Maps 1:1 to [`svg_format::AttributeSort`].\n\n```svg\n<!-- input -->\n<rect y=\"20\" x=\"10\" height=\"50\" width=\"100\" id=\"box\" />\n\n<!-- canonical (default) -->\n<rect id=\"box\" x=\"10\" y=\"20\" width=\"100\" height=\"50\" />\n\n<!-- alphabetical -->\n<rect height=\"50\" id=\"box\" width=\"100\" x=\"10\" y=\"20\" />\n```",
+      "oneOf": [
+        {
+          "description": "Keep original source order.",
+          "type": "string",
+          "const": "none"
+        },
+        {
+          "description": "SVG-aware canonical grouping (id, class, geometry, presentation, ...).",
+          "type": "string",
+          "const": "canonical"
+        },
+        {
+          "description": "Strict alphabetical order.",
+          "type": "string",
+          "const": "alphabetical"
+        }
       ]
     },
     "BlankLinesConfig": {
-      "type": "string",
-      "enum": [
-        "remove",
-        "preserve",
-        "truncate",
-        "insert"
+      "title": "How blank lines between sibling elements are handled.",
+      "description": "Maps 1:1 to [`svg_format::BlankLines`].\n\n```svg\n<!-- input -->\n<svg>\n    <rect />\n\n\n    <!--legend-->\n    <circle />\n</svg>\n\n<!-- remove: all gaps stripped -->\n<svg>\n    <rect />\n    <!--legend-->\n    <circle />\n</svg>\n\n<!-- truncate (default): 2+ collapsed to 1 -->\n<svg>\n    <rect />\n\n    <!--legend-->\n    <circle />\n</svg>\n\n<!-- insert: force gap between every sibling -->\n<svg>\n    <rect />\n\n    <!--legend-->\n\n    <circle />\n</svg>\n```",
+      "oneOf": [
+        {
+          "description": "Strip all blank lines between siblings.",
+          "type": "string",
+          "const": "remove"
+        },
+        {
+          "description": "Keep blank lines from source verbatim.",
+          "type": "string",
+          "const": "preserve"
+        },
+        {
+          "description": "Collapse 2+ blank lines to exactly 1.",
+          "type": "string",
+          "const": "truncate"
+        },
+        {
+          "description": "Force exactly 1 blank line between every sibling.",
+          "type": "string",
+          "const": "insert"
+        }
       ]
     },
     "NewLineKindConfig": {
-      "type": "string",
-      "enum": [
-        "auto",
-        "lf",
-        "crlf"
+      "title": "Line ending style.",
+      "oneOf": [
+        {
+          "description": "Detect from the source file.",
+          "type": "string",
+          "const": "auto"
+        },
+        {
+          "description": "Unix-style `\\n`.",
+          "type": "string",
+          "const": "lf"
+        },
+        {
+          "description": "Windows-style `\\r\\n`.",
+          "type": "string",
+          "const": "crlf"
+        }
       ]
     },
     "QuoteStyleConfig": {
-      "type": "string",
-      "enum": [
-        "preserve",
-        "double",
-        "single"
+      "title": "Quoting strategy for attribute values.",
+      "description": "Maps 1:1 to [`svg_format::QuoteStyle`].\n\n```svg\n<!-- preserve: keeps original -->\n<rect id='box' class=\"hero\" />\n\n<!-- double -->\n<rect id=\"box\" class=\"hero\" />\n\n<!-- single -->\n<rect id='box' class='hero' />\n```",
+      "oneOf": [
+        {
+          "description": "Keep the original quote character.",
+          "type": "string",
+          "const": "preserve"
+        },
+        {
+          "description": "Normalize to double quotes.",
+          "type": "string",
+          "const": "double"
+        },
+        {
+          "description": "Normalize to single quotes.",
+          "type": "string",
+          "const": "single"
+        }
       ]
     },
     "TextContentModeConfig": {
-      "type": "string",
-      "enum": [
-        "collapse",
-        "maintain",
-        "prettify"
+      "title": "How the formatter handles whitespace in text nodes.",
+      "description": "Maps 1:1 to [`svg_format::TextContentMode`].\n\n```svg\n<!-- input -->\n<text>  hello   world  </text>\n\n<!-- collapse -->\n<text>\n    hello world\n</text>\n\n<!-- maintain (default): preserves relative indentation -->\n<text>\n    hello   world\n</text>\n\n<!-- prettify: trims each line -->\n<text>\n    hello   world\n</text>\n```",
+      "oneOf": [
+        {
+          "description": "Collapse whitespace runs to single spaces.",
+          "type": "string",
+          "const": "collapse"
+        },
+        {
+          "description": "Preserve relative indentation structure.",
+          "type": "string",
+          "const": "maintain"
+        },
+        {
+          "description": "Trim each line and re-indent to SVG depth.",
+          "type": "string",
+          "const": "prettify"
+        }
       ]
     },
     "WrappedAttributeIndentConfig": {
-      "type": "string",
-      "enum": [
-        "one-level",
-        "align-to-tag-name"
+      "title": "Indentation strategy for wrapped attributes.",
+      "description": "Maps 1:1 to [`svg_format::WrappedAttributeIndent`].\n\n```svg\n<!-- one-level (default) -->\n<linearGradient\n    id=\"sky\"\n    x1=\"0%\">\n</linearGradient>\n\n<!-- align-to-tag-name -->\n<linearGradient\n                id=\"sky\"\n                x1=\"0%\">\n</linearGradient>\n```",
+      "oneOf": [
+        {
+          "description": "Indent one level deeper than the tag.",
+          "type": "string",
+          "const": "one-level"
+        },
+        {
+          "description": "Align to the column after `<tagName `.",
+          "type": "string",
+          "const": "align-to-tag-name"
+        }
       ]
     }
   }

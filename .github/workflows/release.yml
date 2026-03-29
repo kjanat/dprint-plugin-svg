@@ -15,11 +15,11 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
         with: { targets: wasm32-unknown-unknown }
 
-      - name: Run tests
-        run: just test
-
       - name: Build Wasm artifact
         run: just build-wasm
+
+      - name: Run tests
+        run: just test
 
       - name: Normalize release artifact names
         working-directory: target/wasm32-unknown-unknown/release
