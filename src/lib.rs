@@ -10,7 +10,7 @@ use dprint_core::plugins::{
 use serde::Serialize;
 use svg_format::{
     AttributeLayout, AttributeSort, FormatOptions, QuoteStyle, TextContentMode,
-    WrappedAttributeIndent, format_with_host,
+    WrappedAttributeIndent,
 };
 
 #[cfg(feature = "schema")]
@@ -301,7 +301,7 @@ impl SyncPluginHandler<Configuration> for SvgWasmPluginHandler {
         let indent_width = request.config.indent_width as u32;
         let do_embedded = request.config.format_embedded_content;
 
-        let mut formatted = format_with_host(source, options, &mut |embedded| {
+        let mut formatted = svg_format::format_with_host(source, options, &mut |embedded| {
             if !do_embedded {
                 return None;
             }
