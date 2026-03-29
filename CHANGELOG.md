@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.1] - 2026-03-29
+
+### Fixed
+
+- Release workflow ran schema gen after renaming the wasm artifact, breaking the build.
+- Docs site now auto-injects the latest tag into plugin URLs.
+
 ## [0.2.0] - 2026-03-29
 
 ### Added
@@ -53,6 +60,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Config schema and runtime parsing use the same newline enum.
 - Schema output is deterministic across regeneration.
 
-[Unreleased]: https://github.com/kjanat/dprint-plugin-svg/compare/v0.2.0...HEAD
+[Unreleased]: https://github.com/kjanat/dprint-plugin-svg/compare/v0.2.1...HEAD
+[0.2.1]: https://github.com/kjanat/dprint-plugin-svg/compare/v0.2.0...v0.2.1
 [0.2.0]: https://github.com/kjanat/dprint-plugin-svg/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/kjanat/dprint-plugin-svg/releases/tag/v0.1.0
