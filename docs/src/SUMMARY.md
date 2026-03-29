@@ -14,4 +14,6 @@
 - [spaceBeforeSelfClose](./config/space-before-self-close.md)
 - [quoteStyle](./config/quote-style.md)
 - [wrappedAttributeIndent](./config/wrapped-attribute-indent.md)
+- [textContent](./config/text-content.md)
+- [formatEmbeddedContent](./config/format-embedded-content.md)
 - [newLineKind](./config/new-line-kind.md)
