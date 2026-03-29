@@ -31,7 +31,7 @@ serde_json  = { version = "1", features = ["preserve_order"] }
 [dependencies.svg-format]
 package = "svg-format"
 git     = "https://github.com/kjanat/svg-language-server"  # path    = "../svg-language-server/crates/svg-format"
-rev     = "134cbf24907dff7bcc53e539dd1481ab1f1d0157"
+rev     = "43f2aa4978a4c9e0fcc1f908e90e66dc4ec656a2"
 
 [features]
 default = []
