@@ -10,9 +10,10 @@
   "yaml": { "printWidth": 160 },
   "svg": {
     "useTabs": true,
-    "attributeLayout": "auto",
-    "spaceBeforeSelfClose": true,
-    "wrappedAttributeIndent": "one-level",
+    // "attributeLayout": "auto",
+    // "spaceBeforeSelfClose": true,
+    // "wrappedAttributeIndent": "one-level",
+    // "blankLines": "preserve",
   },
   "exec": {
     "commands": [

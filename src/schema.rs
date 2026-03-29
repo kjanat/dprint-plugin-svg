@@ -16,7 +16,8 @@ use crate::{
 /// # Top-level configuration schema for the dprint SVG plugin.
 ///
 /// All fields are optional — omitted values fall back to dprint global
-/// config or built-in defaults.
+/// config or built-in defaults. Default values are emitted into the
+/// JSON Schema via `#[serde(default = "...")]` so editors can display them.
 #[derive(Clone, Debug, Default, Serialize, JsonSchema)]
 #[serde(rename_all = "camelCase")]
 pub struct DprintSvgConfigSchema {
@@ -26,6 +27,7 @@ pub struct DprintSvgConfigSchema {
     /// Fallback line width for formatting decisions when maxInlineTagWidth is
     /// not provided.
     #[schemars(range(min = 1))]
+    #[serde(default = "defaults::line_width")]
     pub line_width: Option<u32>,
 
     /// Maximum inline tag width before wrapping attributes or children.
@@ -33,42 +35,102 @@ pub struct DprintSvgConfigSchema {
     pub max_inline_tag_width: Option<u32>,
 
     /// Use tabs for indentation instead of spaces.
+    #[serde(default = "defaults::use_tabs")]
     pub use_tabs: Option<bool>,
 
     /// Indent width when useTabs is false.
     #[schemars(range(min = 1))]
+    #[serde(default = "defaults::indent_width")]
     pub indent_width: Option<u8>,
 
     /// The newline kind to write.
+    #[serde(default = "defaults::new_line_kind")]
     pub new_line_kind: Option<NewLineKindConfig>,
 
     /// Attribute ordering strategy.
+    #[serde(default = "defaults::attribute_sort")]
     pub attribute_sort: Option<AttributeSortConfig>,
 
     /// Attribute line-breaking strategy.
+    #[serde(default = "defaults::attribute_layout")]
     pub attribute_layout: Option<AttributeLayoutConfig>,
 
     /// Maximum number of attributes per line in multi-line mode.
     #[schemars(range(min = 1))]
+    #[serde(default = "defaults::attributes_per_line")]
     pub attributes_per_line: Option<u32>,
 
     /// Whether to include a space before '/>' in self-closing tags.
+    #[serde(default = "defaults::space_before_self_close")]
     pub space_before_self_close: Option<bool>,
 
     /// Quote style for attribute values.
+    #[serde(default = "defaults::quote_style")]
     pub quote_style: Option<QuoteStyleConfig>,
 
     /// Indent style for wrapped attributes.
+    #[serde(default = "defaults::wrapped_attribute_indent")]
     pub wrapped_attribute_indent: Option<WrappedAttributeIndentConfig>,
 
     /// How text-node whitespace is handled.
+    #[serde(default = "defaults::text_content")]
     pub text_content: Option<TextContentModeConfig>,
 
     /// How blank lines between sibling elements are handled.
+    #[serde(default = "defaults::blank_lines")]
     pub blank_lines: Option<BlankLinesConfig>,
 
     /// Whether to delegate embedded content (CSS, JS, HTML) to host plugins.
+    #[serde(default = "defaults::format_embedded_content")]
     pub format_embedded_content: Option<bool>,
+}
+
+/// Default value functions for schema `#[serde(default)]` attributes.
+///
+/// Each returns `Some(default)` so schemars serializes the variant name
+/// (not `null`) into the schema's `"default"` field.
+mod defaults {
+    use super::*;
+
+    pub fn line_width() -> Option<u32> {
+        Some(100)
+    }
+    pub fn use_tabs() -> Option<bool> {
+        Some(true)
+    }
+    pub fn indent_width() -> Option<u8> {
+        Some(2)
+    }
+    pub fn new_line_kind() -> Option<NewLineKindConfig> {
+        Some(NewLineKindConfig::Auto)
+    }
+    pub fn attribute_sort() -> Option<AttributeSortConfig> {
+        Some(AttributeSortConfig::Canonical)
+    }
+    pub fn attribute_layout() -> Option<AttributeLayoutConfig> {
+        Some(AttributeLayoutConfig::Auto)
+    }
+    pub fn attributes_per_line() -> Option<u32> {
+        Some(1)
+    }
+    pub fn space_before_self_close() -> Option<bool> {
+        Some(true)
+    }
+    pub fn quote_style() -> Option<QuoteStyleConfig> {
+        Some(QuoteStyleConfig::Preserve)
+    }
+    pub fn wrapped_attribute_indent() -> Option<WrappedAttributeIndentConfig> {
+        Some(WrappedAttributeIndentConfig::OneLevel)
+    }
+    pub fn text_content() -> Option<TextContentModeConfig> {
+        Some(TextContentModeConfig::Maintain)
+    }
+    pub fn blank_lines() -> Option<BlankLinesConfig> {
+        Some(BlankLinesConfig::Truncate)
+    }
+    pub fn format_embedded_content() -> Option<bool> {
+        Some(true)
+    }
 }
 
 /// Generate the raw JSON Schema for [`DprintSvgConfigSchema`] using draft-07.

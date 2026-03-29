@@ -2,7 +2,7 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://plugins.dprint.dev/kjanat/dprint-plugin-svg/0.2.0/schema.json",
   "title": "Top-level configuration schema for the dprint SVG plugin.",
-  "description": "All fields are optional — omitted values fall back to dprint global\nconfig or built-in defaults.",
+  "description": "All fields are optional — omitted values fall back to dprint global\nconfig or built-in defaults. Default values are emitted into the\nJSON Schema via `#[serde(default = \"...\")]` so editors can display them.",
   "type": "object",
   "properties": {
     "attributeLayout": {
@@ -14,7 +14,8 @@
         {
           "type": "null"
         }
-      ]
+      ],
+      "default": "auto"
     },
     "attributeSort": {
       "description": "Attribute ordering strategy.",
@@ -25,7 +26,8 @@
         {
           "type": "null"
         }
-      ]
+      ],
+      "default": "canonical"
     },
     "attributesPerLine": {
       "description": "Maximum number of attributes per line in multi-line mode.",
@@ -34,7 +36,8 @@
         "null"
       ],
       "format": "uint32",
-      "minimum": 1
+      "minimum": 1,
+      "default": 1
     },
     "blankLines": {
       "description": "How blank lines between sibling elements are handled.",
@@ -45,14 +48,16 @@
         {
           "type": "null"
         }
-      ]
+      ],
+      "default": "truncate"
     },
     "formatEmbeddedContent": {
       "description": "Whether to delegate embedded content (CSS, JS, HTML) to host plugins.",
       "type": [
         "boolean",
         "null"
-      ]
+      ],
+      "default": true
     },
     "indentWidth": {
       "description": "Indent width when useTabs is false.",
@@ -62,7 +67,8 @@
       ],
       "format": "uint8",
       "minimum": 1,
-      "maximum": 255
+      "maximum": 255,
+      "default": 2
     },
     "lineWidth": {
       "description": "Fallback line width for formatting decisions when maxInlineTagWidth is\nnot provided.",
@@ -71,7 +77,8 @@
         "null"
       ],
       "format": "uint32",
-      "minimum": 1
+      "minimum": 1,
+      "default": 100
     },
     "locked": {
       "description": "Whether the configuration is not allowed to be overridden or extended.",
@@ -98,7 +105,8 @@
         {
           "type": "null"
         }
-      ]
+      ],
+      "default": "auto"
     },
     "quoteStyle": {
       "description": "Quote style for attribute values.",
@@ -109,14 +117,16 @@
         {
           "type": "null"
         }
-      ]
+      ],
+      "default": "preserve"
     },
     "spaceBeforeSelfClose": {
       "description": "Whether to include a space before '/>' in self-closing tags.",
       "type": [
         "boolean",
         "null"
-      ]
+      ],
+      "default": true
     },
     "textContent": {
       "description": "How text-node whitespace is handled.",
@@ -127,14 +137,16 @@
         {
           "type": "null"
         }
-      ]
+      ],
+      "default": "maintain"
     },
     "useTabs": {
       "description": "Use tabs for indentation instead of spaces.",
       "type": [
         "boolean",
         "null"
-      ]
+      ],
+      "default": true
     },
     "wrappedAttributeIndent": {
       "description": "Indent style for wrapped attributes.",
@@ -145,7 +157,8 @@
         {
           "type": "null"
         }
-      ]
+      ],
+      "default": "one-level"
     }
   },
   "definitions": {
