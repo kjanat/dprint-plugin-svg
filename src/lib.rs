@@ -139,6 +139,7 @@ pub struct Configuration {
     pub text_content: TextContentModeConfig,
     pub blank_lines: BlankLinesConfig,
     pub format_embedded_content: bool,
+    pub line_width: u32,
     pub new_line_kind: NewLineKind,
 }
 
@@ -279,6 +280,7 @@ impl SyncPluginHandler<Configuration> for SvgWasmPluginHandler {
                 text_content,
                 blank_lines,
                 format_embedded_content,
+                line_width,
                 new_line_kind,
             },
         }
@@ -323,9 +325,10 @@ impl SyncPluginHandler<Configuration> for SvgWasmPluginHandler {
             blank_lines: map_blank_lines(request.config.blank_lines),
         };
 
-        let line_width = request.config.max_inline_tag_width;
+        let line_width = request.config.line_width;
         let indent_width = request.config.indent_width as u32;
         let do_embedded = request.config.format_embedded_content;
+        let mut host_err: Option<anyhow::Error> = None;
 
         let mut formatted = svg_format::format_with_host(source, options, &mut |embedded| {
             if !do_embedded {
@@ -337,12 +340,17 @@ impl SyncPluginHandler<Configuration> for SvgWasmPluginHandler {
                 svg_format::EmbeddedLanguage::Html => "html",
             };
             let path = std::path::PathBuf::from(format!("file.{ext}"));
-            let adjusted_width =
-                line_width.saturating_sub(embedded.indent_depth as u32 * indent_width);
+            let adjusted_width = line_width
+                .saturating_sub(embedded.indent_depth as u32 * indent_width)
+                .max(1);
             let mut overrides = ConfigKeyMap::new();
             overrides.insert(
                 "lineWidth".into(),
                 dprint_core::configuration::ConfigKeyValue::Number(adjusted_width as i32),
+            );
+            overrides.insert(
+                "newLineKind".into(),
+                dprint_core::configuration::ConfigKeyValue::String("lf".into()),
             );
             match host_format(SyncHostFormatRequest {
                 file_path: &path,
@@ -350,10 +358,24 @@ impl SyncPluginHandler<Configuration> for SvgWasmPluginHandler {
                 range: None,
                 override_config: &overrides,
             }) {
-                Ok(Some(bytes)) => String::from_utf8(bytes).ok(),
-                _ => None,
+                Ok(Some(bytes)) => match String::from_utf8(bytes) {
+                    Ok(s) => Some(s),
+                    Err(e) => {
+                        host_err = Some(anyhow!("embedded {ext} produced invalid UTF-8: {e}"));
+                        None
+                    }
+                },
+                Ok(None) => None,
+                Err(e) => {
+                    host_err = Some(e);
+                    None
+                }
             }
         });
+
+        if let Some(e) = host_err {
+            return Err(e);
+        }
 
         let newline = resolve_new_line_kind(source, request.config.new_line_kind);
         if newline != "\n" {

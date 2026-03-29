@@ -314,6 +314,72 @@ fn format_embedded_content_disabled_preserves_style() {
 }
 
 #[test]
+fn format_embedded_content_delegates_to_host() {
+    let result = resolve_configuration("defaults-global.dprint.json");
+    assert!(result.diagnostics.is_empty());
+    assert!(result.config.format_embedded_content);
+
+    let mut handler = SvgWasmPluginHandler;
+    let token = NullCancellationToken;
+    let input = "<svg><style>.a{fill:red}</style></svg>";
+    let request = SyncFormatRequest {
+        file_path: Path::new("test.svg"),
+        file_bytes: input.as_bytes().to_vec(),
+        config_id: FormatConfigId::from_raw(1),
+        config: &result.config,
+        range: None,
+        token: &token,
+    };
+
+    let mut called = false;
+    let output = handler
+        .format(request, |req| {
+            let path = req.file_path.to_str().unwrap();
+            if path.ends_with(".css") {
+                called = true;
+                Ok(Some(b".a {\n  fill: red;\n}".to_vec()))
+            } else {
+                Ok(None)
+            }
+        })
+        .expect("format should succeed")
+        .map(|bytes| String::from_utf8(bytes).expect("valid UTF-8"));
+
+    assert!(called, "host callback should be invoked for CSS");
+    let output = output.expect("should produce formatted text");
+    assert!(output.contains(".a {"));
+    assert!(output.contains("fill: red;"));
+}
+
+#[test]
+fn format_embedded_content_disabled_skips_host_callback() {
+    let result = resolve_configuration("embedded-disabled.dprint.json");
+    assert!(result.diagnostics.is_empty());
+
+    let mut handler = SvgWasmPluginHandler;
+    let token = NullCancellationToken;
+    let input = "<svg><style>.a{fill:red}</style></svg>";
+    let request = SyncFormatRequest {
+        file_path: Path::new("test.svg"),
+        file_bytes: input.as_bytes().to_vec(),
+        config_id: FormatConfigId::from_raw(1),
+        config: &result.config,
+        range: None,
+        token: &token,
+    };
+
+    let mut called = false;
+    handler
+        .format(request, |_| {
+            called = true;
+            Ok(None)
+        })
+        .expect("format should succeed");
+
+    assert!(!called, "host callback should not be invoked when disabled");
+}
+
+#[test]
 fn resolve_config_blank_lines_truncate() {
     let result = resolve_configuration("blank-lines-truncate.dprint.json");
     assert!(result.diagnostics.is_empty());
