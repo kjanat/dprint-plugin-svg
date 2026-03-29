@@ -7,7 +7,9 @@ use dprint_core::configuration::{
 use dprint_core::plugins::{
     FormatConfigId, NullCancellationToken, SyncFormatRequest, SyncPluginHandler,
 };
-use dprint_plugin_svg::{Configuration, SvgWasmPluginHandler};
+use dprint_plugin_svg::{
+    BlankLinesConfig, Configuration, SvgWasmPluginHandler, TextContentModeConfig,
+};
 use serde_json::Value;
 
 fn config_path(file_name: &str) -> PathBuf {
@@ -227,6 +229,14 @@ fn formatting_is_idempotent() {
             "multiline-align.dprint.json",
             "<svg><linearGradient id=\"sky\" x1=\"0%\" y1=\"0%\"></linearGradient></svg>",
         ),
+        (
+            "text-content-maintain.dprint.json",
+            "<svg><text>\n  hello\n    world\n</text></svg>",
+        ),
+        (
+            "text-content-collapse.dprint.json",
+            "<svg><text>\n  hello   world  \n</text></svg>",
+        ),
     ];
 
     for (fixture, input) in inputs {
@@ -270,4 +280,119 @@ fn format_rejects_invalid_utf8() {
     };
     let err = handler.format(request, |_| Ok(None));
     assert!(err.is_err(), "invalid UTF-8 should return Err");
+}
+
+#[test]
+fn resolve_config_text_content_maintain() {
+    let result = resolve_configuration("text-content-maintain.dprint.json");
+    assert!(result.diagnostics.is_empty());
+    assert_eq!(result.config.text_content, TextContentModeConfig::Maintain);
+}
+
+#[test]
+fn resolve_config_text_content_collapse() {
+    let result = resolve_configuration("text-content-collapse.dprint.json");
+    assert!(result.diagnostics.is_empty());
+    assert_eq!(result.config.text_content, TextContentModeConfig::Collapse);
+}
+
+#[test]
+fn resolve_config_embedded_disabled() {
+    let result = resolve_configuration("embedded-disabled.dprint.json");
+    assert!(result.diagnostics.is_empty());
+    assert!(!result.config.format_embedded_content);
+}
+
+#[test]
+fn format_embedded_content_disabled_preserves_style() {
+    let result = resolve_configuration("embedded-disabled.dprint.json");
+    assert!(result.diagnostics.is_empty());
+
+    let input = "<svg><style>.a{fill:red}</style></svg>";
+    let output = format_with_config(&result.config, input).expect("should format");
+    assert!(output.contains(".a{fill:red}"));
+}
+
+#[test]
+fn format_embedded_content_delegates_to_host() {
+    let result = resolve_configuration("defaults-global.dprint.json");
+    assert!(result.diagnostics.is_empty());
+    assert!(result.config.format_embedded_content);
+
+    let mut handler = SvgWasmPluginHandler;
+    let token = NullCancellationToken;
+    let input = "<svg><style>.a{fill:red}</style></svg>";
+    let request = SyncFormatRequest {
+        file_path: Path::new("test.svg"),
+        file_bytes: input.as_bytes().to_vec(),
+        config_id: FormatConfigId::from_raw(1),
+        config: &result.config,
+        range: None,
+        token: &token,
+    };
+
+    let mut called = false;
+    let output = handler
+        .format(request, |req| {
+            let path = req.file_path.to_str().unwrap();
+            if path.ends_with(".css") {
+                called = true;
+                Ok(Some(b".a {\n  fill: red;\n}".to_vec()))
+            } else {
+                Ok(None)
+            }
+        })
+        .expect("format should succeed")
+        .map(|bytes| String::from_utf8(bytes).expect("valid UTF-8"));
+
+    assert!(called, "host callback should be invoked for CSS");
+    let output = output.expect("should produce formatted text");
+    assert!(output.contains(".a {"));
+    assert!(output.contains("fill: red;"));
+}
+
+#[test]
+fn format_embedded_content_disabled_skips_host_callback() {
+    let result = resolve_configuration("embedded-disabled.dprint.json");
+    assert!(result.diagnostics.is_empty());
+
+    let mut handler = SvgWasmPluginHandler;
+    let token = NullCancellationToken;
+    let input = "<svg><style>.a{fill:red}</style></svg>";
+    let request = SyncFormatRequest {
+        file_path: Path::new("test.svg"),
+        file_bytes: input.as_bytes().to_vec(),
+        config_id: FormatConfigId::from_raw(1),
+        config: &result.config,
+        range: None,
+        token: &token,
+    };
+
+    let mut called = false;
+    handler
+        .format(request, |_| {
+            called = true;
+            Ok(None)
+        })
+        .expect("format should succeed");
+
+    assert!(!called, "host callback should not be invoked when disabled");
+}
+
+#[test]
+fn resolve_config_blank_lines_truncate() {
+    let result = resolve_configuration("blank-lines-truncate.dprint.json");
+    assert!(result.diagnostics.is_empty());
+    assert_eq!(result.config.blank_lines, BlankLinesConfig::Truncate);
+}
+
+#[test]
+fn format_blank_lines_truncate_collapses_multiple() {
+    let result = resolve_configuration("blank-lines-truncate.dprint.json");
+    assert!(result.diagnostics.is_empty());
+
+    let input = "<svg>\n\t<rect />\n\n\n\n\t<!--legend-->\n</svg>";
+    let output = format_with_config(&result.config, input).expect("should format");
+    let expected = "<svg>\n\t<rect />\n\n\t<!--legend-->\n</svg>";
+    assert_eq!(output, expected);
 }

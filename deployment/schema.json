@@ -1,12 +1,12 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "https://plugins.dprint.dev/kjanat/dprint-plugin-svg/0.1.0/schema.json",
-  "title": "Top-level configuration schema for the dprint SVG plugin.",
-  "description": "All fields are optional — omitted values fall back to dprint global\nconfig or built-in defaults.",
+  "$id": "https://plugins.dprint.dev/kjanat/dprint-plugin-svg/0.2.0/schema.json",
+  "title": "dprint SVG plugin configuration",
+  "description": "All fields are optional. Options not set here inherit from the dprint global configuration.",
   "type": "object",
   "properties": {
     "attributeLayout": {
-      "description": "Attribute line-breaking strategy.",
+      "description": "Attribute wrapping mode. https://dprint-svg.kjanat.com/config/attribute-layout.html",
       "anyOf": [
         {
           "$ref": "#/definitions/AttributeLayoutConfig"
@@ -14,10 +14,11 @@
         {
           "type": "null"
         }
-      ]
+      ],
+      "default": "auto"
     },
     "attributeSort": {
-      "description": "Attribute ordering strategy.",
+      "description": "Attribute ordering strategy. https://dprint-svg.kjanat.com/config/attribute-sort.html",
       "anyOf": [
         {
           "$ref": "#/definitions/AttributeSortConfig"
@@ -25,19 +26,41 @@
         {
           "type": "null"
         }
-      ]
+      ],
+      "default": "canonical"
     },
     "attributesPerLine": {
-      "description": "Maximum number of attributes per line in multi-line mode.",
+      "description": "Maximum attributes per line in multi-line mode. https://dprint-svg.kjanat.com/config/attributes-per-line.html",
       "type": [
         "integer",
         "null"
       ],
       "format": "uint32",
-      "minimum": 1
+      "minimum": 1,
+      "default": 1
+    },
+    "blankLines": {
+      "description": "How blank lines between sibling elements are handled. https://dprint-svg.kjanat.com/config/blank-lines.html",
+      "anyOf": [
+        {
+          "$ref": "#/definitions/BlankLinesConfig"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": "truncate"
+    },
+    "formatEmbeddedContent": {
+      "description": "Delegate embedded content (CSS, JS, HTML) to host plugins. https://dprint-svg.kjanat.com/config/format-embedded-content.html",
+      "type": [
+        "boolean",
+        "null"
+      ],
+      "default": true
     },
     "indentWidth": {
-      "description": "Indent width when useTabs is false.",
+      "description": "Indent width when useTabs is false. Inherited from dprint global indentWidth when unset. https://dprint-svg.kjanat.com/config/indent-width.html",
       "type": [
         "integer",
         "null"
@@ -47,7 +70,7 @@
       "maximum": 255
     },
     "lineWidth": {
-      "description": "Fallback line width for formatting decisions when maxInlineTagWidth is\nnot provided.",
+      "description": "Fallback line width. Inherited from dprint global lineWidth when unset. https://dprint-svg.kjanat.com/config/line-width.html",
       "type": [
         "integer",
         "null"
@@ -63,7 +86,7 @@
       ]
     },
     "maxInlineTagWidth": {
-      "description": "Maximum inline tag width before wrapping attributes or children.",
+      "description": "Maximum inline tag width before wrapping attributes. https://dprint-svg.kjanat.com/config/max-inline-tag-width.html",
       "type": [
         "integer",
         "null"
@@ -72,7 +95,7 @@
       "minimum": 1
     },
     "newLineKind": {
-      "description": "The newline kind to write.",
+      "description": "Line ending style. Inherited from dprint global newLineKind when unset. https://dprint-svg.kjanat.com/config/new-line-kind.html",
       "anyOf": [
         {
           "$ref": "#/definitions/NewLineKindConfig"
@@ -83,7 +106,7 @@
       ]
     },
     "quoteStyle": {
-      "description": "Quote style for attribute values.",
+      "description": "Quote style for attribute values. https://dprint-svg.kjanat.com/config/quote-style.html",
       "anyOf": [
         {
           "$ref": "#/definitions/QuoteStyleConfig"
@@ -91,24 +114,38 @@
         {
           "type": "null"
         }
-      ]
+      ],
+      "default": "preserve"
     },
     "spaceBeforeSelfClose": {
-      "description": "Whether to include a space before '/>' in self-closing tags.",
+      "description": "Include a space before /> in self-closing tags. https://dprint-svg.kjanat.com/config/space-before-self-close.html",
       "type": [
         "boolean",
         "null"
-      ]
+      ],
+      "default": true
+    },
+    "textContent": {
+      "description": "How text-node whitespace is handled. https://dprint-svg.kjanat.com/config/text-content.html",
+      "anyOf": [
+        {
+          "$ref": "#/definitions/TextContentModeConfig"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": "maintain"
     },
     "useTabs": {
-      "description": "Use tabs for indentation instead of spaces.",
+      "description": "Use tabs for indentation. Inherited from dprint global useTabs when unset. https://dprint-svg.kjanat.com/config/use-tabs.html",
       "type": [
         "boolean",
         "null"
       ]
     },
     "wrappedAttributeIndent": {
-      "description": "Indent style for wrapped attributes.",
+      "description": "Indentation strategy for wrapped attributes. https://dprint-svg.kjanat.com/config/wrapped-attribute-indent.html",
       "anyOf": [
         {
           "$ref": "#/definitions/WrappedAttributeIndentConfig"
@@ -116,47 +153,156 @@
         {
           "type": "null"
         }
-      ]
+      ],
+      "default": "one-level"
     }
   },
   "definitions": {
     "AttributeLayoutConfig": {
-      "type": "string",
-      "enum": [
-        "auto",
-        "single-line",
-        "multi-line"
+      "title": "attributeLayout",
+      "description": "Attribute wrapping mode.",
+      "oneOf": [
+        {
+          "description": "Wrap only when inline width exceeds `maxInlineTagWidth`.",
+          "type": "string",
+          "const": "auto"
+        },
+        {
+          "description": "Always keep all attributes on one line.",
+          "type": "string",
+          "const": "single-line"
+        },
+        {
+          "description": "Always wrap attributes onto separate lines.",
+          "type": "string",
+          "const": "multi-line"
+        }
       ]
     },
     "AttributeSortConfig": {
-      "type": "string",
-      "enum": [
-        "none",
-        "canonical",
-        "alphabetical"
+      "title": "attributeSort",
+      "description": "Attribute ordering strategy.",
+      "oneOf": [
+        {
+          "description": "Keep original source order.",
+          "type": "string",
+          "const": "none"
+        },
+        {
+          "description": "SVG-aware canonical grouping (id, class, geometry, presentation, ...).",
+          "type": "string",
+          "const": "canonical"
+        },
+        {
+          "description": "Strict alphabetical order.",
+          "type": "string",
+          "const": "alphabetical"
+        }
+      ]
+    },
+    "BlankLinesConfig": {
+      "title": "blankLines",
+      "description": "How blank lines between sibling elements are handled.",
+      "oneOf": [
+        {
+          "description": "Strip all blank lines between siblings.",
+          "type": "string",
+          "const": "remove"
+        },
+        {
+          "description": "Keep blank lines from source verbatim.",
+          "type": "string",
+          "const": "preserve"
+        },
+        {
+          "description": "Collapse 2+ blank lines to exactly 1.",
+          "type": "string",
+          "const": "truncate"
+        },
+        {
+          "description": "Force exactly 1 blank line between every sibling.",
+          "type": "string",
+          "const": "insert"
+        }
       ]
     },
     "NewLineKindConfig": {
-      "type": "string",
-      "enum": [
-        "auto",
-        "lf",
-        "crlf"
+      "title": "newLineKind",
+      "description": "Line ending style.",
+      "oneOf": [
+        {
+          "description": "Detect from the source file.",
+          "type": "string",
+          "const": "auto"
+        },
+        {
+          "description": "Unix-style `\\n`.",
+          "type": "string",
+          "const": "lf"
+        },
+        {
+          "description": "Windows-style `\\r\\n`.",
+          "type": "string",
+          "const": "crlf"
+        }
       ]
     },
     "QuoteStyleConfig": {
-      "type": "string",
-      "enum": [
-        "preserve",
-        "double",
-        "single"
+      "title": "quoteStyle",
+      "description": "Quoting strategy for attribute values.",
+      "oneOf": [
+        {
+          "description": "Keep the original quote character.",
+          "type": "string",
+          "const": "preserve"
+        },
+        {
+          "description": "Normalize to double quotes.",
+          "type": "string",
+          "const": "double"
+        },
+        {
+          "description": "Normalize to single quotes.",
+          "type": "string",
+          "const": "single"
+        }
+      ]
+    },
+    "TextContentModeConfig": {
+      "title": "textContent",
+      "description": "How text-node whitespace is handled.",
+      "oneOf": [
+        {
+          "description": "Collapse whitespace runs to single spaces.",
+          "type": "string",
+          "const": "collapse"
+        },
+        {
+          "description": "Preserve relative indentation structure.",
+          "type": "string",
+          "const": "maintain"
+        },
+        {
+          "description": "Trim each line and re-indent to SVG depth.",
+          "type": "string",
+          "const": "prettify"
+        }
       ]
     },
     "WrappedAttributeIndentConfig": {
-      "type": "string",
-      "enum": [
-        "one-level",
-        "align-to-tag-name"
+      "title": "wrappedAttributeIndent",
+      "description": "Indentation strategy for wrapped attributes.",
+      "oneOf": [
+        {
+          "description": "Indent one level deeper than the tag.",
+          "type": "string",
+          "const": "one-level"
+        },
+        {
+          "description": "Align to the column after `<tagName `.",
+          "type": "string",
+          "const": "align-to-tag-name"
+        }
       ]
     }
   }

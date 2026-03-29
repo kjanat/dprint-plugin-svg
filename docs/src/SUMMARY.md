@@ -1,8 +1,9 @@
 # Summary
 
 [Introduction](./introduction.md)
+[Ignoring Code](./ignoring-code.md)
 
-# Configuration
+## Configuration
 
 - [lineWidth](./config/line-width.md)
 - [maxInlineTagWidth](./config/max-inline-tag-width.md)
@@ -14,4 +15,7 @@
 - [spaceBeforeSelfClose](./config/space-before-self-close.md)
 - [quoteStyle](./config/quote-style.md)
 - [wrappedAttributeIndent](./config/wrapped-attribute-indent.md)
+- [textContent](./config/text-content.md)
+- [blankLines](./config/blank-lines.md)
+- [formatEmbeddedContent](./config/format-embedded-content.md)
 - [newLineKind](./config/new-line-kind.md)

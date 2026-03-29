@@ -7,15 +7,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-03-29
+
 ### Added
 
+- `textContent` option: control text-node whitespace handling (`collapse`, `maintain`, `prettify`; default: `maintain`).
+- `formatEmbeddedContent` option: delegate `<style>` (CSS), `<script>` (JS), and `<foreignObject>` (HTML) to other dprint plugins via the host callback (default: `true`).
+- `blankLines` option: control blank lines between sibling elements (`remove`, `preserve`, `truncate`, `insert`; default: `truncate`).
+- Config doc pages for `textContent`, `blankLines`, and `formatEmbeddedContent`.
+- Ignore directives: `<!-- dprint-ignore -->`, `<!-- dprint-ignore-start/end -->`, `<!-- dprint-ignore-file -->` (also works with `svg-format-` prefix).
+- Rustdoc with before/after SVG examples on all config enums and public API.
+- Default values emitted into JSON Schema for editor autocompletion.
 - mdbook configuration reference with per-option before/after examples.
 - GitHub Pages workflow for auto-deploying docs on push to master.
 - `just book` recipe for local mdbook builds.
 - SVG sample corpus covering diagnostics, hover info, path commands, and color/style edge cases.
 
+### Fixed
+
+- Embedded content width budget uses resolved `lineWidth` instead of `maxInlineTagWidth`.
+- Host formatter errors are propagated instead of silently swallowed.
+- Force LF line endings on embedded content to prevent CRLF doubling.
+
 ### Changed
 
+- Default text-node handling changed from trim-and-reindent to preserve-relative-indentation (`maintain` mode).
 - Add docs site metadata for the custom domain and GitHub edit links.
 
 ## [0.1.0] - 2026-03-28
@@ -37,5 +53,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Config schema and runtime parsing use the same newline enum.
 - Schema output is deterministic across regeneration.
 
-[Unreleased]: https://github.com/kjanat/dprint-plugin-svg/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/kjanat/dprint-plugin-svg/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/kjanat/dprint-plugin-svg/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/kjanat/dprint-plugin-svg/releases/tag/v0.1.0

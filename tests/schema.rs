@@ -96,18 +96,37 @@ fn schema_enum_variants_match_expected_values() {
             &["one-level", "align-to-tag-name"],
         ),
         ("NewLineKindConfig", &["auto", "lf", "crlf"]),
+        (
+            "TextContentModeConfig",
+            &["collapse", "maintain", "prettify"],
+        ),
+        (
+            "BlankLinesConfig",
+            &["remove", "preserve", "truncate", "insert"],
+        ),
     ];
 
     for (name, variants) in expected {
         let def = definitions
             .get(*name)
             .unwrap_or_else(|| panic!("missing definition: {name}"));
-        let enum_values: Vec<&str> = def["enum"]
-            .as_array()
-            .unwrap_or_else(|| panic!("{name} should have an enum array"))
-            .iter()
-            .map(|v| v.as_str().expect("enum variant should be a string"))
-            .collect();
+
+        // schemars emits "enum" for bare variants, "oneOf" when variants have descriptions.
+        let enum_values: Vec<&str> = if let Some(arr) = def.get("enum").and_then(|v| v.as_array()) {
+            arr.iter()
+                .map(|v| v.as_str().expect("enum variant should be a string"))
+                .collect()
+        } else if let Some(arr) = def.get("oneOf").and_then(|v| v.as_array()) {
+            arr.iter()
+                .map(|v| {
+                    v["const"]
+                        .as_str()
+                        .expect("oneOf variant should have a const string")
+                })
+                .collect()
+        } else {
+            panic!("{name} should have an enum or oneOf array");
+        };
         assert_eq!(enum_values, *variants, "enum variants mismatch for {name}");
     }
 }

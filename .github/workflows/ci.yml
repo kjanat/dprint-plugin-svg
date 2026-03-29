@@ -16,6 +16,9 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
         with: { targets: wasm32-unknown-unknown }
 
+      - name: Build Wasm
+        run: just build-wasm
+
       - name: Format check
         run: dprint check
 
@@ -24,6 +27,3 @@ jobs:
 
       - name: Test
         run: just test
-
-      - name: Build Wasm
-        run: just build-wasm

@@ -1,3 +1,9 @@
+//! CLI to regenerate `deployment/schema.json` from Rust types.
+//!
+//! Usage: `cargo run --features schema --bin generate-schema -- [output_path]`
+//!
+//! Defaults to `deployment/schema.json` when no argument is given.
+
 use std::env;
 use std::fs;
 use std::path::PathBuf;
