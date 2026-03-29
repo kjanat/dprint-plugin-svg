@@ -7,7 +7,7 @@ use dprint_core::configuration::{
 use dprint_core::plugins::{
     FormatConfigId, NullCancellationToken, SyncFormatRequest, SyncPluginHandler,
 };
-use dprint_plugin_svg::{Configuration, SvgWasmPluginHandler};
+use dprint_plugin_svg::{Configuration, SvgWasmPluginHandler, TextContentModeConfig};
 use serde_json::Value;
 
 fn config_path(file_name: &str) -> PathBuf {
@@ -227,6 +227,14 @@ fn formatting_is_idempotent() {
             "multiline-align.dprint.json",
             "<svg><linearGradient id=\"sky\" x1=\"0%\" y1=\"0%\"></linearGradient></svg>",
         ),
+        (
+            "text-content-maintain.dprint.json",
+            "<svg><text>\n  hello\n    world\n</text></svg>",
+        ),
+        (
+            "text-content-collapse.dprint.json",
+            "<svg><text>\n  hello   world  \n</text></svg>",
+        ),
     ];
 
     for (fixture, input) in inputs {
@@ -270,4 +278,35 @@ fn format_rejects_invalid_utf8() {
     };
     let err = handler.format(request, |_| Ok(None));
     assert!(err.is_err(), "invalid UTF-8 should return Err");
+}
+
+#[test]
+fn resolve_config_text_content_maintain() {
+    let result = resolve_configuration("text-content-maintain.dprint.json");
+    assert!(result.diagnostics.is_empty());
+    assert_eq!(result.config.text_content, TextContentModeConfig::Maintain);
+}
+
+#[test]
+fn resolve_config_text_content_collapse() {
+    let result = resolve_configuration("text-content-collapse.dprint.json");
+    assert!(result.diagnostics.is_empty());
+    assert_eq!(result.config.text_content, TextContentModeConfig::Collapse);
+}
+
+#[test]
+fn resolve_config_embedded_disabled() {
+    let result = resolve_configuration("embedded-disabled.dprint.json");
+    assert!(result.diagnostics.is_empty());
+    assert!(!result.config.format_embedded_content);
+}
+
+#[test]
+fn format_embedded_content_disabled_preserves_style() {
+    let result = resolve_configuration("embedded-disabled.dprint.json");
+    assert!(result.diagnostics.is_empty());
+
+    let input = "<svg><style>.a{fill:red}</style></svg>";
+    let output = format_with_config(&result.config, input).expect("should format");
+    assert!(output.contains(".a{fill:red}"));
 }

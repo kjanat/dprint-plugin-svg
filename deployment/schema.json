@@ -36,6 +36,13 @@
       "format": "uint32",
       "minimum": 1
     },
+    "formatEmbeddedContent": {
+      "description": "Whether to delegate embedded content (CSS, JS, HTML) to host plugins.",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
     "indentWidth": {
       "description": "Indent width when useTabs is false.",
       "type": [
@@ -100,6 +107,17 @@
         "null"
       ]
     },
+    "textContent": {
+      "description": "How text-node whitespace is handled.",
+      "anyOf": [
+        {
+          "$ref": "#/definitions/TextContentModeConfig"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
     "useTabs": {
       "description": "Use tabs for indentation instead of spaces.",
       "type": [
@@ -150,6 +168,14 @@
         "preserve",
         "double",
         "single"
+      ]
+    },
+    "TextContentModeConfig": {
+      "type": "string",
+      "enum": [
+        "collapse",
+        "maintain",
+        "prettify"
       ]
     },
     "WrappedAttributeIndentConfig": {

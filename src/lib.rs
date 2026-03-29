@@ -9,8 +9,8 @@ use dprint_core::plugins::{
 };
 use serde::Serialize;
 use svg_format::{
-    AttributeLayout, AttributeSort, FormatOptions, QuoteStyle, WrappedAttributeIndent,
-    format_with_options,
+    AttributeLayout, AttributeSort, FormatOptions, QuoteStyle, TextContentMode,
+    WrappedAttributeIndent, format_with_host,
 };
 
 #[cfg(feature = "schema")]
@@ -92,6 +92,21 @@ dprint_core::generate_str_to_from![
     [Crlf, "crlf"]
 ];
 
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+#[serde(rename_all = "kebab-case")]
+pub enum TextContentModeConfig {
+    Collapse,
+    Maintain,
+    Prettify,
+}
+dprint_core::generate_str_to_from![
+    TextContentModeConfig,
+    [Collapse, "collapse"],
+    [Maintain, "maintain"],
+    [Prettify, "prettify"]
+];
+
 #[derive(Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Configuration {
@@ -104,6 +119,8 @@ pub struct Configuration {
     pub space_before_self_close: bool,
     pub quote_style: QuoteStyleConfig,
     pub wrapped_attribute_indent: WrappedAttributeIndentConfig,
+    pub text_content: TextContentModeConfig,
+    pub format_embedded_content: bool,
     pub new_line_kind: NewLineKind,
 }
 
@@ -200,6 +217,15 @@ impl SyncPluginHandler<Configuration> for SvgWasmPluginHandler {
             NewLineKindConfig::Crlf => NewLineKind::CarriageReturnLineFeed,
         };
 
+        let text_content = get_value(
+            &mut config,
+            "textContent",
+            TextContentModeConfig::Maintain,
+            &mut diagnostics,
+        );
+        let format_embedded_content =
+            get_value(&mut config, "formatEmbeddedContent", true, &mut diagnostics);
+
         if attributes_per_line == 0 {
             diagnostics.push(ConfigurationDiagnostic {
                 property_name: "attributesPerLine".to_string(),
@@ -226,6 +252,8 @@ impl SyncPluginHandler<Configuration> for SvgWasmPluginHandler {
                 space_before_self_close,
                 quote_style,
                 wrapped_attribute_indent,
+                text_content,
+                format_embedded_content,
                 new_line_kind,
             },
         }
@@ -241,7 +269,7 @@ impl SyncPluginHandler<Configuration> for SvgWasmPluginHandler {
     fn format(
         &mut self,
         request: SyncFormatRequest<Configuration>,
-        _format_with_host: impl FnMut(SyncHostFormatRequest) -> FormatResult,
+        mut host_format: impl FnMut(SyncHostFormatRequest) -> FormatResult,
     ) -> FormatResult {
         if request.range.is_some() || request.token.is_cancelled() {
             return Ok(None);
@@ -266,9 +294,41 @@ impl SyncPluginHandler<Configuration> for SvgWasmPluginHandler {
             wrapped_attribute_indent: map_wrapped_attribute_indent(
                 request.config.wrapped_attribute_indent,
             ),
+            text_content: map_text_content(request.config.text_content),
         };
 
-        let mut formatted = format_with_options(source, options);
+        let line_width = request.config.max_inline_tag_width;
+        let indent_width = request.config.indent_width as u32;
+        let do_embedded = request.config.format_embedded_content;
+
+        let mut formatted = format_with_host(source, options, &mut |embedded| {
+            if !do_embedded {
+                return None;
+            }
+            let ext = match embedded.language {
+                svg_format::EmbeddedLanguage::Css => "css",
+                svg_format::EmbeddedLanguage::JavaScript => "js",
+                svg_format::EmbeddedLanguage::Html => "html",
+            };
+            let path = std::path::PathBuf::from(format!("file.{ext}"));
+            let adjusted_width =
+                line_width.saturating_sub(embedded.indent_depth as u32 * indent_width);
+            let mut overrides = ConfigKeyMap::new();
+            overrides.insert(
+                "lineWidth".into(),
+                dprint_core::configuration::ConfigKeyValue::Number(adjusted_width as i32),
+            );
+            match host_format(SyncHostFormatRequest {
+                file_path: &path,
+                file_bytes: embedded.content.as_bytes(),
+                range: None,
+                override_config: &overrides,
+            }) {
+                Ok(Some(bytes)) => String::from_utf8(bytes).ok(),
+                _ => None,
+            }
+        });
+
         let newline = resolve_new_line_kind(source, request.config.new_line_kind);
         if newline != "\n" {
             formatted = formatted.replace('\n', newline);
@@ -310,6 +370,14 @@ fn map_wrapped_attribute_indent(value: WrappedAttributeIndentConfig) -> WrappedA
     match value {
         WrappedAttributeIndentConfig::OneLevel => WrappedAttributeIndent::OneLevel,
         WrappedAttributeIndentConfig::AlignToTagName => WrappedAttributeIndent::AlignToTagName,
+    }
+}
+
+fn map_text_content(value: TextContentModeConfig) -> TextContentMode {
+    match value {
+        TextContentModeConfig::Collapse => TextContentMode::Collapse,
+        TextContentModeConfig::Maintain => TextContentMode::Maintain,
+        TextContentModeConfig::Prettify => TextContentMode::Prettify,
     }
 }
 

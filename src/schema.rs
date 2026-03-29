@@ -10,7 +10,7 @@ use serde_json::{Map, Value, json};
 
 use crate::{
     AttributeLayoutConfig, AttributeSortConfig, NewLineKindConfig, QuoteStyleConfig,
-    WrappedAttributeIndentConfig,
+    TextContentModeConfig, WrappedAttributeIndentConfig,
 };
 
 /// # Top-level configuration schema for the dprint SVG plugin.
@@ -60,6 +60,12 @@ pub struct DprintSvgConfigSchema {
 
     /// Indent style for wrapped attributes.
     pub wrapped_attribute_indent: Option<WrappedAttributeIndentConfig>,
+
+    /// How text-node whitespace is handled.
+    pub text_content: Option<TextContentModeConfig>,
+
+    /// Whether to delegate embedded content (CSS, JS, HTML) to host plugins.
+    pub format_embedded_content: Option<bool>,
 }
 
 pub fn generate_root_schema() -> Schema {
