@@ -360,13 +360,19 @@ pub struct Configuration {
 
 impl SyncPluginHandler<Configuration> for SvgWasmPluginHandler {
     fn plugin_info(&mut self) -> PluginInfo {
+        let version = env!("CARGO_PKG_VERSION").to_string();
         PluginInfo {
             name: env!("CARGO_PKG_NAME").to_string(),
-            version: env!("CARGO_PKG_VERSION").to_string(),
+            version: version.clone(),
             config_key: "svg".to_string(),
             help_url: "https://github.com/kjanat/dprint-plugin-svg".to_string(),
-            config_schema_url: "".to_string(),
-            update_url: None,
+            config_schema_url: format!(
+                "https://plugins.dprint.dev/kjanat/dprint-plugin-svg/{}/schema.json",
+                version
+            ),
+            update_url: Some(
+                "https://plugins.dprint.dev/kjanat/dprint-plugin-svg/latest.json".to_string(),
+            ),
         }
     }
 
