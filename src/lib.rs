@@ -515,7 +515,7 @@ impl SyncPluginHandler<Configuration> for SvgWasmPluginHandler {
                 svg_format::EmbeddedLanguage::JavaScript => "js",
                 svg_format::EmbeddedLanguage::Html => "html",
             };
-            let path = std::path::PathBuf::from(format!("file.{ext}"));
+            let path = request.file_path.with_extension(ext);
             let adjusted_width = line_width
                 .saturating_sub(embedded.indent_depth as u32 * indent_width)
                 .max(1);
@@ -537,13 +537,23 @@ impl SyncPluginHandler<Configuration> for SvgWasmPluginHandler {
                 Ok(Some(bytes)) => match String::from_utf8(bytes) {
                     Ok(s) => Some(s),
                     Err(e) => {
-                        host_err = Some(anyhow!("embedded {ext} produced invalid UTF-8: {e}"));
+                        host_err.get_or_insert_with(|| {
+                            anyhow!(
+                                "embedded {ext} in '{}' produced invalid UTF-8: {e}",
+                                request.file_path.display()
+                            )
+                        });
                         None
                     }
                 },
                 Ok(None) => None,
                 Err(e) => {
-                    host_err = Some(e);
+                    host_err.get_or_insert_with(|| {
+                        anyhow!(
+                            "failed to format embedded {ext} in '{}': {e}",
+                            request.file_path.display()
+                        )
+                    });
                     None
                 }
             }

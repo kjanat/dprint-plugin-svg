@@ -2,7 +2,7 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://plugins.dprint.dev/kjanat/dprint-plugin-svg/0.2.0/schema.json",
   "title": "Top-level configuration schema for the dprint SVG plugin.",
-  "description": "All fields are optional — omitted values fall back to dprint global\nconfig or built-in defaults. Default values are emitted into the\nJSON Schema via `#[serde(default = \"...\")]` so editors can display them.",
+  "description": "All fields are optional — omitted values fall back to dprint global\nconfig or built-in defaults. Only plugin-owned options emit a JSON\nSchema `\"default\"`; options inherited from globals (`lineWidth`,\n`useTabs`, `indentWidth`, `newLineKind`) describe the fallback instead.",
   "type": "object",
   "properties": {
     "attributeLayout": {
@@ -60,25 +60,23 @@
       "default": true
     },
     "indentWidth": {
-      "description": "Indent width when useTabs is false.",
+      "description": "Indent width when useTabs is false. Inherited from dprint global\n`indentWidth` when unset.",
       "type": [
         "integer",
         "null"
       ],
       "format": "uint8",
       "minimum": 1,
-      "maximum": 255,
-      "default": 2
+      "maximum": 255
     },
     "lineWidth": {
-      "description": "Fallback line width for formatting decisions when maxInlineTagWidth is\nnot provided.",
+      "description": "Fallback line width for formatting decisions when maxInlineTagWidth is\nnot provided. Inherited from dprint global `lineWidth` when unset.",
       "type": [
         "integer",
         "null"
       ],
       "format": "uint32",
-      "minimum": 1,
-      "default": 100
+      "minimum": 1
     },
     "locked": {
       "description": "Whether the configuration is not allowed to be overridden or extended.",
@@ -97,7 +95,7 @@
       "minimum": 1
     },
     "newLineKind": {
-      "description": "The newline kind to write.",
+      "description": "The newline kind to write. Inherited from dprint global `newLineKind`\nwhen unset.",
       "anyOf": [
         {
           "$ref": "#/definitions/NewLineKindConfig"
@@ -105,8 +103,7 @@
         {
           "type": "null"
         }
-      ],
-      "default": "auto"
+      ]
     },
     "quoteStyle": {
       "description": "Quote style for attribute values.",
@@ -141,12 +138,11 @@
       "default": "maintain"
     },
     "useTabs": {
-      "description": "Use tabs for indentation instead of spaces.",
+      "description": "Use tabs for indentation instead of spaces. Inherited from dprint\nglobal `useTabs` when unset.",
       "type": [
         "boolean",
         "null"
-      ],
-      "default": true
+      ]
     },
     "wrappedAttributeIndent": {
       "description": "Indent style for wrapped attributes.",

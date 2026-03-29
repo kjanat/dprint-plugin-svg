@@ -1,5 +1,7 @@
 # https://just.systems
 
+set positional-arguments := true
+
 alias f := fmt
 alias l := lint
 alias t := test
@@ -16,8 +18,8 @@ default:
     just --list --unsorted
 
 fmt:
-    @if [[ ! -f {{ wasmpath }} ]]; then just build-wasm; fi
-    @if [[ ! -f {{ wasmpath }} ]]; then echo "Plugin artifact not found after build." >&2; exit 1; fi
+    @if [ ! -f '{{ wasmpath }}' ]; then just build-wasm; fi
+    @if [ ! -f '{{ wasmpath }}' ]; then echo "Plugin artifact not found after build." >&2; exit 1; fi
     dprint fmt
 
 lint:
@@ -37,12 +39,12 @@ book:
     mdbook build docs
 
 plugin-path:
-    @if [[ ! -f {{ wasmpath }} ]]; then just build-wasm; fi
-    @if [[ ! -f {{ wasmpath }} ]]; then echo "Plugin artifact not found after build." >&2; exit 1; fi
+    @if [ ! -f '{{ wasmpath }}' ]; then just build-wasm; fi
+    @if [ ! -f '{{ wasmpath }}' ]; then echo "Plugin artifact not found after build." >&2; exit 1; fi
     @echo "$(pwd)/{{ wasmpath }}"
 
 # Let gippity write a nice commit message
 [arg("model", long="model", short="m")]
 [arg("variant", long="variant", short="v")]
 commit model="openai/gpt-5.4" variant="medium" *MESSAGE:
-    opencode run --command commit --model={{ model }} --variant={{ variant }} "{{ MESSAGE }}"
+    opencode run --command commit --model={{ model }} --variant={{ variant }} "$@"

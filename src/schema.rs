@@ -16,8 +16,9 @@ use crate::{
 /// # Top-level configuration schema for the dprint SVG plugin.
 ///
 /// All fields are optional — omitted values fall back to dprint global
-/// config or built-in defaults. Default values are emitted into the
-/// JSON Schema via `#[serde(default = "...")]` so editors can display them.
+/// config or built-in defaults. Only plugin-owned options emit a JSON
+/// Schema `"default"`; options inherited from globals (`lineWidth`,
+/// `useTabs`, `indentWidth`, `newLineKind`) describe the fallback instead.
 #[derive(Clone, Debug, Default, Serialize, JsonSchema)]
 #[serde(rename_all = "camelCase")]
 pub struct DprintSvgConfigSchema {
@@ -25,26 +26,25 @@ pub struct DprintSvgConfigSchema {
     pub locked: Option<bool>,
 
     /// Fallback line width for formatting decisions when maxInlineTagWidth is
-    /// not provided.
+    /// not provided. Inherited from dprint global `lineWidth` when unset.
     #[schemars(range(min = 1))]
-    #[serde(default = "defaults::line_width")]
     pub line_width: Option<u32>,
 
     /// Maximum inline tag width before wrapping attributes or children.
     #[schemars(range(min = 1))]
     pub max_inline_tag_width: Option<u32>,
 
-    /// Use tabs for indentation instead of spaces.
-    #[serde(default = "defaults::use_tabs")]
+    /// Use tabs for indentation instead of spaces. Inherited from dprint
+    /// global `useTabs` when unset.
     pub use_tabs: Option<bool>,
 
-    /// Indent width when useTabs is false.
+    /// Indent width when useTabs is false. Inherited from dprint global
+    /// `indentWidth` when unset.
     #[schemars(range(min = 1))]
-    #[serde(default = "defaults::indent_width")]
     pub indent_width: Option<u8>,
 
-    /// The newline kind to write.
-    #[serde(default = "defaults::new_line_kind")]
+    /// The newline kind to write. Inherited from dprint global `newLineKind`
+    /// when unset.
     pub new_line_kind: Option<NewLineKindConfig>,
 
     /// Attribute ordering strategy.
@@ -85,25 +85,13 @@ pub struct DprintSvgConfigSchema {
     pub format_embedded_content: Option<bool>,
 }
 
-/// Default value functions for schema `#[serde(default)]` attributes.
+/// Default value functions for plugin-owned schema fields.
 ///
-/// Each returns `Some(default)` so schemars serializes the variant name
-/// (not `null`) into the schema's `"default"` field.
+/// Only covers options with static defaults — globally inherited options
+/// (`lineWidth`, `useTabs`, `indentWidth`, `newLineKind`) are excluded.
 mod defaults {
     use super::*;
 
-    pub fn line_width() -> Option<u32> {
-        Some(100)
-    }
-    pub fn use_tabs() -> Option<bool> {
-        Some(true)
-    }
-    pub fn indent_width() -> Option<u8> {
-        Some(2)
-    }
-    pub fn new_line_kind() -> Option<NewLineKindConfig> {
-        Some(NewLineKindConfig::Auto)
-    }
     pub fn attribute_sort() -> Option<AttributeSortConfig> {
         Some(AttributeSortConfig::Canonical)
     }
