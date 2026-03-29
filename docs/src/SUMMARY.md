@@ -1,6 +1,7 @@
 # Summary
 
 [Introduction](./introduction.md)
+[Ignoring Code](./ignoring-code.md)
 
 ## Configuration
 

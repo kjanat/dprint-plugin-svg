@@ -498,6 +498,7 @@ impl SyncPluginHandler<Configuration> for SvgWasmPluginHandler {
             ),
             text_content: map_text_content(request.config.text_content),
             blank_lines: map_blank_lines(request.config.blank_lines),
+            ignore_prefixes: vec!["svg-format".into(), "dprint".into()],
         };
 
         let line_width = request.config.line_width;

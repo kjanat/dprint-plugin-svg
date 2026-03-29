@@ -15,7 +15,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `formatEmbeddedContent` option: delegate `<style>` (CSS), `<script>` (JS), and `<foreignObject>` (HTML) to other dprint plugins via the host callback (default: `true`).
 - `blankLines` option: control blank lines between sibling elements (`remove`, `preserve`, `truncate`, `insert`; default: `truncate`).
 - Config doc pages for `textContent`, `blankLines`, and `formatEmbeddedContent`.
+- Ignore directives: `<!-- dprint-ignore -->`, `<!-- dprint-ignore-start/end -->`, `<!-- dprint-ignore-file -->` (also works with `svg-format-` prefix).
 - Rustdoc with before/after SVG examples on all config enums and public API.
+- Default values emitted into JSON Schema for editor autocompletion.
 - mdbook configuration reference with per-option before/after examples.
 - GitHub Pages workflow for auto-deploying docs on push to master.
 - `just book` recipe for local mdbook builds.

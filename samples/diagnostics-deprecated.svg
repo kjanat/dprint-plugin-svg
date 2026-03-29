@@ -1,7 +1,5 @@
 <!-- Deprecated attributes — each triggers a DeprecatedAttribute warning -->
-
 <!-- In editors, deprecated names render with ~~strikethrough~~ (DiagnosticTag::DEPRECATED) -->
-
 <svg
 	xmlns="http://www.w3.org/2000/svg"
 	xmlns:xlink="http://www.w3.org/1999/xlink"
