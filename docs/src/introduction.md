@@ -5,7 +5,7 @@ A [dprint](https://dprint.dev) Wasm plugin for formatting SVG files.
 ## Install
 
 ```sh
-dprint config add kjanat/svg
+dprint add kjanat/svg
 ```
 
 ## Quick start
@@ -20,7 +20,7 @@ Add plugin-level options under the `"svg"` key in your dprint config:
     "spaceBeforeSelfClose": true
   },
   "plugins": [
-    "https://plugins.dprint.dev/kjanat/svg-v0.1.0.wasm"
+    "https://plugins.dprint.dev/kjanat/svg-{{LATEST_TAG}}.wasm"
   ]
 }
 ```

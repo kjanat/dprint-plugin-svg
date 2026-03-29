@@ -7,7 +7,7 @@ dprint Wasm plugin for formatting SVG files.
 After the first tagged release has been published, add the plugin with:
 
 ```sh
-dprint config add kjanat/svg
+dprint add kjanat/svg
 ```
 
 This installs the hosted `plugin.wasm` and schema URL in your dprint config.
