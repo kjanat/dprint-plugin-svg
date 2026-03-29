@@ -21,12 +21,12 @@ jobs:
       - name: Run tests
         run: just test
 
+      - name: Generate schema
+        run: just schema
+
       - name: Normalize release artifact names
         working-directory: target/wasm32-unknown-unknown/release
         run: mv dprint_plugin_svg.wasm plugin.wasm
-
-      - name: Generate schema
-        run: just schema
 
       - name: Create GitHub release
         uses: softprops/action-gh-release@v2
