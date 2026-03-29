@@ -2,7 +2,7 @@
 
 [Introduction](./introduction.md)
 
-# Configuration
+## Configuration
 
 - [lineWidth](./config/line-width.md)
 - [maxInlineTagWidth](./config/max-inline-tag-width.md)
