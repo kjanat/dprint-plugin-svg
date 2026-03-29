@@ -7,7 +7,9 @@ use dprint_core::configuration::{
 use dprint_core::plugins::{
     FormatConfigId, NullCancellationToken, SyncFormatRequest, SyncPluginHandler,
 };
-use dprint_plugin_svg::{Configuration, SvgWasmPluginHandler, TextContentModeConfig};
+use dprint_plugin_svg::{
+    BlankLinesConfig, Configuration, SvgWasmPluginHandler, TextContentModeConfig,
+};
 use serde_json::Value;
 
 fn config_path(file_name: &str) -> PathBuf {
@@ -309,4 +311,22 @@ fn format_embedded_content_disabled_preserves_style() {
     let input = "<svg><style>.a{fill:red}</style></svg>";
     let output = format_with_config(&result.config, input).expect("should format");
     assert!(output.contains(".a{fill:red}"));
+}
+
+#[test]
+fn resolve_config_blank_lines_truncate() {
+    let result = resolve_configuration("blank-lines-truncate.dprint.json");
+    assert!(result.diagnostics.is_empty());
+    assert_eq!(result.config.blank_lines, BlankLinesConfig::Truncate);
+}
+
+#[test]
+fn format_blank_lines_truncate_collapses_multiple() {
+    let result = resolve_configuration("blank-lines-truncate.dprint.json");
+    assert!(result.diagnostics.is_empty());
+
+    let input = "<svg>\n\t<rect />\n\n\n\n\t<!--legend-->\n</svg>";
+    let output = format_with_config(&result.config, input).expect("should format");
+    let expected = "<svg>\n\t<rect />\n\n\t<!--legend-->\n</svg>";
+    assert_eq!(output, expected);
 }

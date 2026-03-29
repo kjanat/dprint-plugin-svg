@@ -9,8 +9,8 @@ use serde::Serialize;
 use serde_json::{Map, Value, json};
 
 use crate::{
-    AttributeLayoutConfig, AttributeSortConfig, NewLineKindConfig, QuoteStyleConfig,
-    TextContentModeConfig, WrappedAttributeIndentConfig,
+    AttributeLayoutConfig, AttributeSortConfig, BlankLinesConfig, NewLineKindConfig,
+    QuoteStyleConfig, TextContentModeConfig, WrappedAttributeIndentConfig,
 };
 
 /// # Top-level configuration schema for the dprint SVG plugin.
@@ -63,6 +63,9 @@ pub struct DprintSvgConfigSchema {
 
     /// How text-node whitespace is handled.
     pub text_content: Option<TextContentModeConfig>,
+
+    /// How blank lines between sibling elements are handled.
+    pub blank_lines: Option<BlankLinesConfig>,
 
     /// Whether to delegate embedded content (CSS, JS, HTML) to host plugins.
     pub format_embedded_content: Option<bool>,

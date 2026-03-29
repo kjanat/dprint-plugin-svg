@@ -9,7 +9,7 @@ use dprint_core::plugins::{
 };
 use serde::Serialize;
 use svg_format::{
-    AttributeLayout, AttributeSort, FormatOptions, QuoteStyle, TextContentMode,
+    AttributeLayout, AttributeSort, BlankLines, FormatOptions, QuoteStyle, TextContentMode,
     WrappedAttributeIndent,
 };
 
@@ -107,6 +107,23 @@ dprint_core::generate_str_to_from![
     [Prettify, "prettify"]
 ];
 
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+#[serde(rename_all = "kebab-case")]
+pub enum BlankLinesConfig {
+    Remove,
+    Preserve,
+    Truncate,
+    Insert,
+}
+dprint_core::generate_str_to_from![
+    BlankLinesConfig,
+    [Remove, "remove"],
+    [Preserve, "preserve"],
+    [Truncate, "truncate"],
+    [Insert, "insert"]
+];
+
 #[derive(Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Configuration {
@@ -120,6 +137,7 @@ pub struct Configuration {
     pub quote_style: QuoteStyleConfig,
     pub wrapped_attribute_indent: WrappedAttributeIndentConfig,
     pub text_content: TextContentModeConfig,
+    pub blank_lines: BlankLinesConfig,
     pub format_embedded_content: bool,
     pub new_line_kind: NewLineKind,
 }
@@ -223,6 +241,12 @@ impl SyncPluginHandler<Configuration> for SvgWasmPluginHandler {
             TextContentModeConfig::Maintain,
             &mut diagnostics,
         );
+        let blank_lines = get_value(
+            &mut config,
+            "blankLines",
+            BlankLinesConfig::Truncate,
+            &mut diagnostics,
+        );
         let format_embedded_content =
             get_value(&mut config, "formatEmbeddedContent", true, &mut diagnostics);
 
@@ -253,6 +277,7 @@ impl SyncPluginHandler<Configuration> for SvgWasmPluginHandler {
                 quote_style,
                 wrapped_attribute_indent,
                 text_content,
+                blank_lines,
                 format_embedded_content,
                 new_line_kind,
             },
@@ -295,6 +320,7 @@ impl SyncPluginHandler<Configuration> for SvgWasmPluginHandler {
                 request.config.wrapped_attribute_indent,
             ),
             text_content: map_text_content(request.config.text_content),
+            blank_lines: map_blank_lines(request.config.blank_lines),
         };
 
         let line_width = request.config.max_inline_tag_width;
@@ -370,6 +396,15 @@ fn map_wrapped_attribute_indent(value: WrappedAttributeIndentConfig) -> WrappedA
     match value {
         WrappedAttributeIndentConfig::OneLevel => WrappedAttributeIndent::OneLevel,
         WrappedAttributeIndentConfig::AlignToTagName => WrappedAttributeIndent::AlignToTagName,
+    }
+}
+
+fn map_blank_lines(value: BlankLinesConfig) -> BlankLines {
+    match value {
+        BlankLinesConfig::Remove => BlankLines::Remove,
+        BlankLinesConfig::Preserve => BlankLines::Preserve,
+        BlankLinesConfig::Truncate => BlankLines::Truncate,
+        BlankLinesConfig::Insert => BlankLines::Insert,
     }
 }
 

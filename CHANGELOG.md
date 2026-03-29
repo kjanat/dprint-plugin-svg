@@ -13,7 +13,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - `textContent` option: control text-node whitespace handling (`collapse`, `maintain`, `prettify`; default: `maintain`).
 - `formatEmbeddedContent` option: delegate `<style>` (CSS), `<script>` (JS), and `<foreignObject>` (HTML) to other dprint plugins via the host callback (default: `true`).
-- Config doc pages for `textContent` and `formatEmbeddedContent`.
+- `blankLines` option: control blank lines between sibling elements (`remove`, `preserve`, `truncate`, `insert`; default: `truncate`).
+- Config doc pages for `textContent`, `blankLines`, and `formatEmbeddedContent`.
 - mdbook configuration reference with per-option before/after examples.
 - GitHub Pages workflow for auto-deploying docs on push to master.
 - `just book` recipe for local mdbook builds.

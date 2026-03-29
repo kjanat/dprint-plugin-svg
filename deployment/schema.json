@@ -36,6 +36,17 @@
       "format": "uint32",
       "minimum": 1
     },
+    "blankLines": {
+      "description": "How blank lines between sibling elements are handled.",
+      "anyOf": [
+        {
+          "$ref": "#/definitions/BlankLinesConfig"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
     "formatEmbeddedContent": {
       "description": "Whether to delegate embedded content (CSS, JS, HTML) to host plugins.",
       "type": [
@@ -152,6 +163,15 @@
         "none",
         "canonical",
         "alphabetical"
+      ]
+    },
+    "BlankLinesConfig": {
+      "type": "string",
+      "enum": [
+        "remove",
+        "preserve",
+        "truncate",
+        "insert"
       ]
     },
     "NewLineKindConfig": {
