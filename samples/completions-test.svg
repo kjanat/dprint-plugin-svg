@@ -1,6 +1,9 @@
 <!-- Type < after each comment to test element completions -->
+
 <!-- Type attribute names inside tags to test attribute completions -->
+
 <!-- Type attribute values inside quotes to test value completions -->
+
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300">
 	<!-- Place cursor after < here and trigger completions (Ctrl+Space) -->
 	<!-- Expected: rect, circle, g, path, text, defs, etc. -->
@@ -11,14 +14,17 @@
 			<!-- Inside <linearGradient>, completions should include stop -->
 			<!-- Place cursor after < here -->
 			<stop offset="0%" stop-color="red" />
+
 			<stop offset="100%" stop-color="blue" />
 		</linearGradient>
+
 		<filter id="f1">
 			<!-- Inside <filter>, completions should include filter primitives -->
 			<!-- Place cursor after < here -->
 			<feGaussianBlur stdDeviation="5" />
 		</filter>
 	</defs>
+
 	<!-- ATTRIBUTE COMPLETIONS: place cursor after the space in the opening tag -->
 	<!-- stroke-linecap=" → should offer: butt, round, square -->
 	<line
@@ -29,25 +35,30 @@
 		stroke="black"
 		stroke-width="6"
 		stroke-linecap="round" />
+
 	<!-- fill-rule=" → should offer: nonzero, evenodd -->
 	<path
 		d="M100,100 L200,100 L150,180 Z"
 		fill="#2a9d8f"
 		fill-rule="evenodd" />
+
 	<!-- text-anchor=" → should offer: start, middle, end -->
 	<text x="200" y="220" font-size="16" text-anchor="middle">
 		<!-- Inside <text>, completions should include tspan, textPath, a -->
 		<tspan font-weight="bold">
 			Hello
 		</tspan>
+
 		<tspan dx="5">
 			World
 		</tspan>
 	</text>
+
 	<!-- TRANSFORM COMPLETIONS: inside transform=" → should offer function names -->
 	<g transform="translate(50, 250)">
 		<rect width="40" height="30" fill="#e76f51" />
 	</g>
+
 	<!-- preserveAspectRatio=" → should offer alignment values + meet/slice -->
 	<svg
 		x="300"

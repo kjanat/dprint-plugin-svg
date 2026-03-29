@@ -10,10 +10,10 @@
   "yaml": { "printWidth": 160 },
   "svg": {
     "useTabs": true,
-    // "attributeLayout": "auto",
-    // "spaceBeforeSelfClose": true,
-    // "wrappedAttributeIndent": "one-level",
-    // "blankLines": "preserve",
+    "attributeLayout": "auto",
+    "spaceBeforeSelfClose": true,
+    "wrappedAttributeIndent": "one-level",
+    "blankLines": "insert",
   },
   "exec": {
     "commands": [
@@ -33,6 +33,7 @@
     "https://plugins.dprint.dev/g-plane/markup_fmt-v0.26.0.wasm",
     "https://plugins.dprint.dev/g-plane/pretty_yaml-v0.6.0.wasm",
     "https://plugins.dprint.dev/exec-0.6.0.json@a054130d458f124f9b5c91484833828950723a5af3f8ff2bd1523bd47b83b364",
+    // `dprint config add kjanat/svg` will add this plugin with the correct versioned released wasm.
     "./target/wasm32-unknown-unknown/release/dprint_plugin_svg.wasm",
   ],
 }
