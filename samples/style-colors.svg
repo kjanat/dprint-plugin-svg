@@ -121,17 +121,7 @@
 
 	<rect class="panel" x="20" y="20" rx="20" width="760" height="800" />
 
-	<text class="label" x="36" y="58">
-		Embedded
-
-		&lt;
-
-		style
-
-		&gt;
-
-		colors
-	</text>
+	<text class="label" x="36" y="58">Embedded &lt;style&gt; colors</text>
 
 	<text class="subtle" x="36" y="84">
 		hex, rgb(a), hsl(a), hwb, lab, lch, oklab, oklch, transparent, stop-color, CSS vars, and color-mix()
