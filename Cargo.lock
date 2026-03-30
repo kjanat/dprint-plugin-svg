@@ -60,7 +60,7 @@ dependencies = [
 
 [[package]]
 name = "dprint-plugin-svg"
-version = "0.2.5"
+version = "0.2.6"
 dependencies = [
  "anyhow",
  "dprint-core",
@@ -303,7 +303,7 @@ checksum = "2b2231b7c3057d5e4ad0156fb3dc807d900806020c5ffa3ee6ff2c8c76fb8520"
 [[package]]
 name = "svg-format"
 version = "0.1.0"
-source = "git+https://github.com/kjanat/svg-language-server?rev=39d3467dec6655d8f252c703e82a370a583052c5#39d3467dec6655d8f252c703e82a370a583052c5"
+source = "git+https://github.com/kjanat/svg-language-server?rev=917fe2547bc4fe9a364e91b315f26cebe52b061f#917fe2547bc4fe9a364e91b315f26cebe52b061f"
 dependencies = [
  "tree-sitter",
  "tree-sitter-svg",

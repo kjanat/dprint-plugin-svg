@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.6] - 2026-03-30
+
+### Fixed
+
+- `blankLines` option now applies inside embedded `<script>`/`<style>` blocks, not just between sibling elements. Double blank lines in host-formatted CSS/JS are collapsed per the configured policy.
+- Leading/trailing blank lines in host formatter output are stripped so no blank line leaks between tags and embedded content.
+
+### Added
+
+- Sample SVG with embedded script (`validity-vs-reliability.svg`).
+- OpenCode `/bump` command for automated version bump workflow.
+
 ## [0.2.5] - 2026-03-30
 
 ### Fixed
@@ -84,7 +96,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Config schema and runtime parsing use the same newline enum.
 - Schema output is deterministic across regeneration.
 
-[Unreleased]: https://github.com/kjanat/dprint-plugin-svg/compare/v0.2.5...HEAD
+[Unreleased]: https://github.com/kjanat/dprint-plugin-svg/compare/v0.2.6...HEAD
+[0.2.6]: https://github.com/kjanat/dprint-plugin-svg/compare/v0.2.5...v0.2.6
 [0.2.5]: https://github.com/kjanat/dprint-plugin-svg/compare/v0.2.4...v0.2.5
 [0.2.4]: https://github.com/kjanat/dprint-plugin-svg/compare/v0.2.3...v0.2.4
 [0.2.3]: https://github.com/kjanat/dprint-plugin-svg/compare/v0.2.2...v0.2.3

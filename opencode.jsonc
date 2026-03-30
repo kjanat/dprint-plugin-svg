@@ -1,0 +1,15 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "command": {
+    "test": {
+      "template": "Run `just test` and report failures.",
+      "description": "Run test suite",
+      "agent": "build",
+    },
+    "bump": {
+      "template": "# Bump the plugin version.\n\n## Steps:\n1. Update @CHANGELOG.md: move Unreleased items into a new version section with today's date. Include all changes since the last versioned entry.\n2. Bump version in Cargo.toml.\n3. Update [`CHANGELOG.md`](CHANGELOG.md) compare links.\n4. Run: `just schema`, `just lint`, `just fmt`, and `just build`. If any warning is emitted during lint, you first resolve this correctly and then return to step 4.\n5. Stage only relevant files edited this session and conversed about with the user (always: Cargo.toml, Cargo.lock, CHANGELOG.md, deployment/schema.json, and any files touched by fmt).\n6. Commit with message: `chore: bump to v<VERSION>`\n7. Create a GPG-signed annotated tag: `git tag -s v<VERSION> -m \"v<VERSION> - [optional message]\"`\n8. Run EXACT command: `git push --atomic`",
+      "description": "Bump version, update changelog, tag, and push",
+      "agent": "build",
+    },
+  },
+}
