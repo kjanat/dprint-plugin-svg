@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- `/bump` command used `git push --atomic` which doesn't push tags; changed to `git push --follow-tags`.
+
 ## [0.2.6] - 2026-03-30
 
 ### Fixed
