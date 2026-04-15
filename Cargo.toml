@@ -1,6 +1,6 @@
 [package]
 name        = "dprint-plugin-svg"
-version     = "0.2.6"
+version     = "0.2.7"
 edition     = "2024"
 description = "dprint Wasm plugin for SVG formatting"
 readme      = "README.md"

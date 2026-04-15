@@ -1,7 +1,7 @@
 use std::fs;
 use std::path::{Path, PathBuf};
 
-use anyhow::anyhow;
+use anyhow::{Context, anyhow};
 use dprint_core::configuration::{
     ConfigKeyMap, ConfigKeyValue, GlobalConfiguration, resolve_global_config,
 };
@@ -403,9 +403,8 @@ fn format_embedded_host_error_preserves_original() {
         .format(request, |req| {
             if req.file_path.extension().and_then(|ext| ext.to_str()) == Some("js") {
                 called = true;
-                Err(anyhow!(
-                    "Cannot format because the configuration was not valid."
-                ))
+                Err(anyhow!("inner config failure"))
+                    .context("Cannot FORMAT because the configuration was NOT valid.")
             } else {
                 Ok(None)
             }
