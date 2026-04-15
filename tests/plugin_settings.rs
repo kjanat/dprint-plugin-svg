@@ -403,7 +403,7 @@ fn format_embedded_host_error_preserves_original() {
         .format(request, |req| {
             if req.file_path.extension().and_then(|ext| ext.to_str()) == Some("js") {
                 called = true;
-                Err(anyhow!("exec formatter not configured"))
+                Err(anyhow!("Cannot format because the configuration was not valid."))
             } else {
                 Ok(None)
             }
@@ -443,6 +443,35 @@ fn format_embedded_host_error_preserves_original() {
         second.is_none(),
         "second format should be idempotent with no further changes"
     );
+}
+
+#[test]
+fn format_embedded_host_real_error_propagates() {
+    let result = resolve_configuration("defaults-global.dprint.json");
+    assert!(result.diagnostics.is_empty());
+    assert!(result.config.format_embedded_content);
+
+    let mut handler = SvgWasmPluginHandler;
+    let token = NullCancellationToken;
+    let input = "<svg><script><![CDATA[function test(){return 3;}]]></script></svg>";
+    let request = SyncFormatRequest {
+        file_path: Path::new("test.svg"),
+        file_bytes: input.as_bytes().to_vec(),
+        config_id: FormatConfigId::from_raw(1),
+        config: &result.config,
+        range: None,
+        token: &token,
+    };
+
+    let err = handler.format(request, |req| {
+        if req.file_path.extension().and_then(|ext| ext.to_str()) == Some("js") {
+            Err(anyhow!("parse error"))
+        } else {
+            Ok(None)
+        }
+    });
+
+    assert!(err.is_err(), "real host errors should propagate");
 }
 
 #[test]
