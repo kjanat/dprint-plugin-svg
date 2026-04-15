@@ -593,15 +593,7 @@ impl SyncPluginHandler<Configuration> for SvgWasmPluginHandler {
                     }
                 },
                 Ok(None) => None,
-                Err(e) => {
-                    host_err.get_or_insert_with(|| {
-                        anyhow!(
-                            "failed to format embedded {ext} in '{}': {e}",
-                            request.file_path.display()
-                        )
-                    });
-                    None
-                }
+                Err(_) => None,
             }
         });
 
