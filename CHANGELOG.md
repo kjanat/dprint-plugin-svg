@@ -7,8 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.7] - 2026-04-15
+
 ### Fixed
 
+- Embedded host formatter configuration errors now fall back to preserving the original `<script>`, `<style>`, or `<foreignObject>` content instead of failing the whole SVG format request.
 - `/bump` command used `git push --atomic` which doesn't push tags; changed to `git push --follow-tags`.
 
 ## [0.2.6] - 2026-03-30
@@ -100,7 +103,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Config schema and runtime parsing use the same newline enum.
 - Schema output is deterministic across regeneration.
 
-[Unreleased]: https://github.com/kjanat/dprint-plugin-svg/compare/v0.2.6...HEAD
+[Unreleased]: https://github.com/kjanat/dprint-plugin-svg/compare/v0.2.7...HEAD
+[0.2.7]: https://github.com/kjanat/dprint-plugin-svg/compare/v0.2.6...v0.2.7
 [0.2.6]: https://github.com/kjanat/dprint-plugin-svg/compare/v0.2.5...v0.2.6
 [0.2.5]: https://github.com/kjanat/dprint-plugin-svg/compare/v0.2.4...v0.2.5
 [0.2.4]: https://github.com/kjanat/dprint-plugin-svg/compare/v0.2.3...v0.2.4

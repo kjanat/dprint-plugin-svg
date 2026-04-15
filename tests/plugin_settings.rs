@@ -1,6 +1,7 @@
 use std::fs;
 use std::path::{Path, PathBuf};
 
+use anyhow::{Context, anyhow};
 use dprint_core::configuration::{
     ConfigKeyMap, ConfigKeyValue, GlobalConfiguration, resolve_global_config,
 };
@@ -377,6 +378,170 @@ fn format_embedded_content_disabled_skips_host_callback() {
         .expect("format should succeed");
 
     assert!(!called, "host callback should not be invoked when disabled");
+}
+
+#[test]
+fn format_embedded_host_error_preserves_original() {
+    let result = resolve_configuration("defaults-global.dprint.json");
+    assert!(result.diagnostics.is_empty());
+    assert!(result.config.format_embedded_content);
+
+    let mut handler = SvgWasmPluginHandler;
+    let token = NullCancellationToken;
+    let input = "<svg><script><![CDATA[function test(){return 1;}]]></script></svg>";
+    let request = SyncFormatRequest {
+        file_path: Path::new("test.svg"),
+        file_bytes: input.as_bytes().to_vec(),
+        config_id: FormatConfigId::from_raw(1),
+        config: &result.config,
+        range: None,
+        token: &token,
+    };
+
+    let mut called = false;
+    let output = handler
+        .format(request, |req| {
+            if req.file_path.extension().and_then(|ext| ext.to_str()) == Some("js") {
+                called = true;
+                Err(anyhow!("inner config failure"))
+                    .context("Cannot FORMAT because the configuration was NOT valid.")
+            } else {
+                Ok(None)
+            }
+        })
+        .expect("format should succeed")
+        .expect("should produce formatted text");
+
+    assert!(called, "host callback should be invoked for JS");
+    let output = String::from_utf8(output).expect("valid UTF-8");
+    assert_eq!(
+        output,
+        "<svg>\n    <script>\n        <![CDATA[function test(){return 1;}]]>\n    </script>\n</svg>"
+    );
+
+    let mut second_called = false;
+    let second = handler
+        .format(
+            SyncFormatRequest {
+                file_path: Path::new("test.svg"),
+                file_bytes: output.as_bytes().to_vec(),
+                config_id: FormatConfigId::from_raw(1),
+                config: &result.config,
+                range: None,
+                token: &token,
+            },
+            |req| {
+                if req.file_path.extension().and_then(|ext| ext.to_str()) == Some("js") {
+                    second_called = true;
+                }
+                Ok(None)
+            },
+        )
+        .expect("second format should succeed");
+
+    assert!(
+        second_called,
+        "host callback should be invoked again for JS"
+    );
+    assert!(
+        second.is_none(),
+        "second format should be idempotent with no further changes"
+    );
+}
+
+#[test]
+fn format_embedded_host_real_error_propagates() {
+    let result = resolve_configuration("defaults-global.dprint.json");
+    assert!(result.diagnostics.is_empty());
+    assert!(result.config.format_embedded_content);
+
+    let mut handler = SvgWasmPluginHandler;
+    let token = NullCancellationToken;
+    let input = "<svg><script><![CDATA[function test(){return 3;}]]></script></svg>";
+    let request = SyncFormatRequest {
+        file_path: Path::new("test.svg"),
+        file_bytes: input.as_bytes().to_vec(),
+        config_id: FormatConfigId::from_raw(1),
+        config: &result.config,
+        range: None,
+        token: &token,
+    };
+
+    let err = handler.format(request, |req| {
+        if req.file_path.extension().and_then(|ext| ext.to_str()) == Some("js") {
+            Err(anyhow!("parse error"))
+        } else {
+            Ok(None)
+        }
+    });
+
+    assert!(err.is_err(), "real host errors should propagate");
+}
+
+#[test]
+fn format_embedded_host_returns_none_preserves_original() {
+    let result = resolve_configuration("defaults-global.dprint.json");
+    assert!(result.diagnostics.is_empty());
+    assert!(result.config.format_embedded_content);
+
+    let mut handler = SvgWasmPluginHandler;
+    let token = NullCancellationToken;
+    let input = "<svg><script><![CDATA[function test(){return 2;}]]></script></svg>";
+    let request = SyncFormatRequest {
+        file_path: Path::new("test.svg"),
+        file_bytes: input.as_bytes().to_vec(),
+        config_id: FormatConfigId::from_raw(1),
+        config: &result.config,
+        range: None,
+        token: &token,
+    };
+
+    let mut called = false;
+    let output = handler
+        .format(request, |req| {
+            if req.file_path.extension().and_then(|ext| ext.to_str()) == Some("js") {
+                called = true;
+            }
+            Ok(None)
+        })
+        .expect("format should succeed")
+        .expect("should produce formatted text");
+
+    assert!(called, "host callback should be invoked for JS");
+    let output = String::from_utf8(output).expect("valid UTF-8");
+    assert_eq!(
+        output,
+        "<svg>\n    <script>\n        <![CDATA[function test(){return 2;}]]>\n    </script>\n</svg>"
+    );
+
+    let mut second_called = false;
+    let second = handler
+        .format(
+            SyncFormatRequest {
+                file_path: Path::new("test.svg"),
+                file_bytes: output.as_bytes().to_vec(),
+                config_id: FormatConfigId::from_raw(1),
+                config: &result.config,
+                range: None,
+                token: &token,
+            },
+            |req| {
+                if req.file_path.extension().and_then(|ext| ext.to_str()) == Some("js") {
+                    second_called = true;
+                }
+                Ok(None)
+            },
+        )
+        .expect("second format should succeed");
+
+    assert!(
+        second_called,
+        "host callback should be invoked again for JS"
+    );
+    assert!(
+        second.is_none(),
+        "second format should be idempotent with no further changes"
+    );
 }
 
 #[test]

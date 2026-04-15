@@ -33,6 +33,17 @@ pub mod schema;
 #[derive(Default)]
 pub struct SvgWasmPluginHandler;
 
+const INVALID_CONFIG_ERROR_FRAGMENT: &str = "configuration was not valid";
+
+fn is_embedded_host_config_error(err: &anyhow::Error) -> bool {
+    err.chain().any(|cause| {
+        cause
+            .to_string()
+            .to_ascii_lowercase()
+            .contains(INVALID_CONFIG_ERROR_FRAGMENT)
+    })
+}
+
 /// # Attribute ordering strategy exposed in the plugin config.
 ///
 /// Maps 1:1 to [`svg_format::AttributeSort`].
@@ -593,10 +604,13 @@ impl SyncPluginHandler<Configuration> for SvgWasmPluginHandler {
                     }
                 },
                 Ok(None) => None,
-                Err(e) => {
+                Err(err) => {
+                    if is_embedded_host_config_error(&err) {
+                        return None;
+                    }
                     host_err.get_or_insert_with(|| {
                         anyhow!(
-                            "failed to format embedded {ext} in '{}': {e}",
+                            "failed to format embedded {ext} in '{}': {err}",
                             request.file_path.display()
                         )
                     });

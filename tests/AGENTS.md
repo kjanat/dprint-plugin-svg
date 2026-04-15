@@ -32,6 +32,7 @@ tests/
 - Parse fixture JSON into `ConfigKeyMap` to match dprint boundary behavior.
 - Keep negative-path coverage: unknown key diagnostics, invalid value fallback, invalid UTF-8.
 - Keep range-format behavior explicit: ranged requests should return `None` (no change).
+- For embedded host delegation, test both graceful fallback cases (missing/invalid host config preserves original content) and hard-failure cases (real host errors still propagate).
 
 ## ANTI-PATTERNS
 
