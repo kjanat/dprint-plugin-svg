@@ -413,7 +413,36 @@ fn format_embedded_host_error_preserves_original() {
 
     assert!(called, "host callback should be invoked for JS");
     let output = String::from_utf8(output).expect("valid UTF-8");
-    assert!(output.contains("function test(){return 1;}"));
+    assert_eq!(
+        output,
+        "<svg>\n    <script>\n        <![CDATA[function test(){return 1;}]]>\n    </script>\n</svg>"
+    );
+
+    let mut second_called = false;
+    let second = handler
+        .format(
+            SyncFormatRequest {
+                file_path: Path::new("test.svg"),
+                file_bytes: output.as_bytes().to_vec(),
+                config_id: FormatConfigId::from_raw(1),
+                config: &result.config,
+                range: None,
+                token: &token,
+            },
+            |req| {
+                if req.file_path.extension().and_then(|ext| ext.to_str()) == Some("js") {
+                    second_called = true;
+                }
+                Ok(None)
+            },
+        )
+        .expect("second format should succeed");
+
+    assert!(second_called, "host callback should be invoked again for JS");
+    assert!(
+        second.is_none(),
+        "second format should be idempotent with no further changes"
+    );
 }
 
 #[test]
@@ -447,7 +476,36 @@ fn format_embedded_host_returns_none_preserves_original() {
 
     assert!(called, "host callback should be invoked for JS");
     let output = String::from_utf8(output).expect("valid UTF-8");
-    assert!(output.contains("function test(){return 2;}"));
+    assert_eq!(
+        output,
+        "<svg>\n    <script>\n        <![CDATA[function test(){return 2;}]]>\n    </script>\n</svg>"
+    );
+
+    let mut second_called = false;
+    let second = handler
+        .format(
+            SyncFormatRequest {
+                file_path: Path::new("test.svg"),
+                file_bytes: output.as_bytes().to_vec(),
+                config_id: FormatConfigId::from_raw(1),
+                config: &result.config,
+                range: None,
+                token: &token,
+            },
+            |req| {
+                if req.file_path.extension().and_then(|ext| ext.to_str()) == Some("js") {
+                    second_called = true;
+                }
+                Ok(None)
+            },
+        )
+        .expect("second format should succeed");
+
+    assert!(second_called, "host callback should be invoked again for JS");
+    assert!(
+        second.is_none(),
+        "second format should be idempotent with no further changes"
+    );
 }
 
 #[test]
