@@ -1,56 +1,63 @@
 # PROJECT KNOWLEDGE BASE
 
-**Generated:** 2026-03-28
+**Generated:** 2026-03-29 **Commit:** `7469009` **Branch:** `feat/embedded-formatting`
 
 ## OVERVIEW
 
-Rust dprint WASM plugin for SVG formatting. Core logic in `src/lib.rs`, schema generation behind `schema` feature, integration-heavy tests in `tests/`.
+Rust dprint WASM plugin for SVG formatting. Runtime stays concentrated in `src/lib.rs`; schema, docs, tests, and release artifacts are separate maintained contract surfaces.
 
 ## STRUCTURE
 
 ```txt
 ./
-├── src/                 # plugin handler + config parsing + format bridge
+├── src/                 # runtime plugin code; local AGENTS
 │   └── bin/             # schema generator CLI
-├── tests/               # integration tests + config fixtures
-│   └── configs/         # dprint json fixtures used by tests
+├── tests/               # integration + schema checks; local AGENTS
+│   └── configs/         # dprint fixture configs
+├── docs/                # mdBook source + build boundary; local AGENTS
 ├── deployment/          # committed schema artifact
-├── .github/             # CI/release + private dependency bootstrap
-├── Cargo.toml           # crate metadata, features, deps
-└── justfile             # canonical dev commands
+├── .github/             # CI, release, Pages workflows; local AGENTS
+├── samples/             # SVG corpus for examples/manual checks
+├── Cargo.toml           # manifest + pinned svg-format rev
+└── justfile             # canonical local commands
 ```
 
 ## WHERE TO LOOK
 
-| Task                           | Location                                                    | Notes                                                      |
-| ------------------------------ | ----------------------------------------------------------- | ---------------------------------------------------------- |
-| Plugin entry + dprint contract | `src/lib.rs`                                                | `SyncPluginHandler<Configuration>` impl                    |
-| Config schema model/generation | `src/schema.rs`                                             | enabled by `schema` feature                                |
-| Regenerate deployment schema   | `src/bin/generate-schema.rs`                                | run via `just schema`                                      |
-| Config behavior tests          | `tests/plugin_settings.rs`                                  | fixture-driven; asserts formatting + diagnostics           |
-| Schema drift/shape tests       | `tests/schema.rs`                                           | fails if `deployment/schema.json` stale                    |
-| CI/release behavior            | `.github/workflows/ci.yml`, `.github/workflows/release.yml` | CI runs fmt/lint/test/build; release uploads wasm + schema |
+| Task                          | Location                     | Notes                                                                    |
+| ----------------------------- | ---------------------------- | ------------------------------------------------------------------------ |
+| Plugin entry + config mapping | `src/lib.rs`                 | `SyncPluginHandler<Configuration>` impl, config parsing, host delegation |
+| Schema model + defaults       | `src/schema.rs`              | enabled by `schema` feature; mirrors config contract                     |
+| Regenerate committed schema   | `src/bin/generate-schema.rs` | `just schema` wraps generator + formatting                               |
+| Config/format behavior tests  | `tests/plugin_settings.rs`   | fixture-driven; asserts output, diagnostics, idempotence                 |
+| Schema drift + enum contract  | `tests/schema.rs`            | fails if `deployment/schema.json` is stale                               |
+| Config reference docs         | `docs/src/config/*.md`       | source of truth for per-option docs                                      |
+| Local command surface         | `justfile`                   | mirrors CI/release steps                                                 |
+| Automation + publishing       | `.github/workflows/*.yml`    | CI, GitHub release, Pages deploy                                         |
 
 ## CONVENTIONS
 
-- Canonical local workflow: `just fmt`, `just lint`, `just test`, `just build-wasm`, `just schema`.
-- CI/release enforce `cargo test --all-targets --all-features`; schema tests always active in CI.
-- `svg-format` dependency is a local sibling path (`../svg-language-server/...`), not crates.io.
-- Formatting stack is dprint-led; Rust formatting invoked through dprint exec plugin.
-- Formatter must be idempotent: second format pass returns no change.
+- Canonical local workflow: `just fmt`, `just lint`, `just test`, `just build-wasm`, `just schema`, `just book`.
+- `just fmt` depends on a built local wasm artifact because `.dprint.jsonc` points at `./target/wasm32-unknown-unknown/release/dprint_plugin_svg.wasm`.
+- `svg-format` is pinned to a git `rev` in `Cargo.toml`; current reality is git dependency, not sibling path.
+- CI/test path uses `cargo test --all-targets --all-features`; schema tests run in normal `just test`.
+- Workflow triggers still use `master`.
+- Formatter contract is idempotent: second format pass returns no change.
 
 ## ANTI-PATTERNS (THIS PROJECT)
 
-- Do not hand-edit `deployment/schema.json`; regenerate via schema binary.
-- Do not bypass fixture-based config tests when adding/changing config keys.
-- Do not assume range formatting supported; plugin intentionally no-ops ranged requests.
-- Do not introduce non-UTF-8 tolerant behavior changes without test updates.
+- Do not hand-edit `deployment/schema.json`; regenerate via `just schema` or the schema bin.
+- Do not change config surface without updating tests and schema/docs together.
+- Do not assume range formatting is supported; ranged requests intentionally return no change.
+- Do not weaken invalid UTF-8 failure behavior without explicit test updates.
+- Do not trust README alone for config coverage; docs/schema/source are more complete.
 
 ## UNIQUE STYLES
 
-- Strongly typed string enums for config values (`generate_str_to_from!` patterns).
-- Config diagnostics preferred over hard failure for invalid user config values.
-- Tests validate both output text and operational semantics (idempotence, diagnostics, UTF-8 failure).
+- Config parsing is diagnostic-first: invalid or unknown user config should diagnose, not hard-fail.
+- Strongly typed string enums use `generate_str_to_from!` patterns.
+- Embedded CSS, JS, and HTML delegate through the dprint host when `formatEmbeddedContent` is enabled.
+- Tests assert operational semantics, not only formatted text.
 
 ## COMMANDS
 
@@ -60,9 +67,11 @@ just lint
 just test
 just build-wasm
 just schema
+just book
 ```
 
 ## NOTES
 
-- README dependency policy text currently references pinned git rev; manifest currently uses local path dep.
-- CI private-dependency setup clones sibling repo into parent workspace; local env must mirror that layout.
+- `docs/book/` is mdBook output; Pages builds it from `docs/src/`.
+- Release normalizes `dprint_plugin_svg.wasm` to `plugin.wasm` before upload.
+- README config summary lags current docs/schema; prefer `docs/src/config/` and `src/schema.rs`.

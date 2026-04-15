@@ -17,7 +17,12 @@ jobs:
       url: ${{ steps.deploy.outputs.page_url }}
     steps:
       - uses: actions/checkout@v6
+        with: { fetch-depth: 0 }
       - uses: taiki-e/install-action@mdbook
+      - name: Inject latest tag into docs
+        run: |
+          TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
+          find docs/src -name '*.md' -exec sed -i "s/{{LATEST_TAG}}/$TAG/g" {} +
       - run: mdbook build docs
       - uses: actions/upload-pages-artifact@v4
         with: { path: docs/book }

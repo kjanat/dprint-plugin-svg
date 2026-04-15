@@ -1,6 +1,6 @@
 [package]
 name        = "dprint-plugin-svg"
-version     = "0.2.0"
+version     = "0.2.6"
 edition     = "2024"
 description = "dprint Wasm plugin for SVG formatting"
 readme      = "README.md"
@@ -31,7 +31,7 @@ serde_json  = { version = "1", features = ["preserve_order"] }
 [dependencies.svg-format]
 package = "svg-format"
 git     = "https://github.com/kjanat/svg-language-server"  # path    = "../svg-language-server/crates/svg-format"
-rev     = "ced3d39b07bbcf3dcd16d45c4798f059402b68a0"
+rev     = "917fe2547bc4fe9a364e91b315f26cebe52b061f"
 
 [features]
 default = []
