@@ -403,7 +403,9 @@ fn format_embedded_host_error_preserves_original() {
         .format(request, |req| {
             if req.file_path.extension().and_then(|ext| ext.to_str()) == Some("js") {
                 called = true;
-                Err(anyhow!("Cannot format because the configuration was not valid."))
+                Err(anyhow!(
+                    "Cannot format because the configuration was not valid."
+                ))
             } else {
                 Ok(None)
             }
@@ -438,7 +440,10 @@ fn format_embedded_host_error_preserves_original() {
         )
         .expect("second format should succeed");
 
-    assert!(second_called, "host callback should be invoked again for JS");
+    assert!(
+        second_called,
+        "host callback should be invoked again for JS"
+    );
     assert!(
         second.is_none(),
         "second format should be idempotent with no further changes"
@@ -530,7 +535,10 @@ fn format_embedded_host_returns_none_preserves_original() {
         )
         .expect("second format should succeed");
 
-    assert!(second_called, "host callback should be invoked again for JS");
+    assert!(
+        second_called,
+        "host callback should be invoked again for JS"
+    );
     assert!(
         second.is_none(),
         "second format should be idempotent with no further changes"
