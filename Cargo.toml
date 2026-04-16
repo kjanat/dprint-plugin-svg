@@ -22,11 +22,12 @@ path              = "src/bin/generate-schema.rs"
 required-features = ["schema"]
 
 [dependencies]
-anyhow      = "1"
-dprint-core = { version = "0.67", features = ["wasm"] }
-schemars    = { version = "1", optional = true }
-serde       = { version = "1", features = ["derive"] }
-serde_json  = { version = "1", features = ["preserve_order"] }
+anyhow       = "1"
+const_format = "0.2"
+dprint-core  = { version = "0.67", features = ["wasm"] }
+schemars     = { version = "1", optional = true }
+serde        = { version = "1", features = ["derive"] }
+serde_json   = { version = "1", features = ["preserve_order"] }
 
 [dependencies.svg-format]
 package = "svg-format"

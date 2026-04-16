@@ -26,15 +26,41 @@ use svg_format::{
 #[cfg(feature = "schema")]
 pub mod schema;
 
+/// GitHub repository URL, taken verbatim from `package.repository` in `Cargo.toml`.
+///
+/// Used as the `help_url` in [`PluginInfo`].
+pub(crate) const REPO_URL: &str = env!("CARGO_PKG_REPOSITORY");
+
+/// `owner/name` portion of [`REPO_URL`] — e.g. `kjanat/dprint-plugin-svg`.
+///
+/// `plugins.dprint.dev` mirrors the GitHub path, so every URL this plugin
+/// advertises interpolates this value. Derived at compile time by slicing off
+/// the `https://github.com/` prefix. If `package.repository` is ever changed
+/// to a non-GitHub host, update the prefix literal below.
+pub(crate) const REPO_PATH: &str = {
+    let (_, path) = REPO_URL.split_at("https://github.com/".len());
+    path
+};
+
 /// Canonical URL for this build's published JSON Schema on `plugins.dprint.dev`.
 ///
-/// Used as the runtime-advertised `config_schema_url` in [`PluginInfo`] and as the
-/// `$id` baked into the generated `schema.json` artifact. Keeping both in sync
-/// from a single constant prevents the two from drifting apart.
-pub(crate) const SCHEMA_URL: &str = concat!(
-    "https://plugins.dprint.dev/kjanat/dprint-plugin-svg/v",
+/// Used as the runtime-advertised `config_schema_url` in [`PluginInfo`] and as
+/// the `$id` baked into the generated `schema.json` artifact.
+pub(crate) const SCHEMA_URL: &str = const_format::concatcp!(
+    "https://plugins.dprint.dev/",
+    REPO_PATH,
+    "/v",
     env!("CARGO_PKG_VERSION"),
     "/schema.json",
+);
+
+/// Update-notification URL for `dprint config update` discovery.
+///
+/// Stable per repository — resolves server-side to the latest release's wasm.
+pub(crate) const UPDATE_URL: &str = const_format::concatcp!(
+    "https://plugins.dprint.dev/",
+    REPO_PATH,
+    "/latest.json",
 );
 
 /// # The [`SyncPluginHandler`] implementation for the SVG formatter.
@@ -386,11 +412,9 @@ impl SyncPluginHandler<Configuration> for SvgWasmPluginHandler {
             name: env!("CARGO_PKG_NAME").to_string(),
             version: env!("CARGO_PKG_VERSION").to_string(),
             config_key: "svg".to_string(),
-            help_url: "https://github.com/kjanat/dprint-plugin-svg".to_string(),
+            help_url: REPO_URL.to_string(),
             config_schema_url: SCHEMA_URL.to_string(),
-            update_url: Some(
-                "https://plugins.dprint.dev/kjanat/dprint-plugin-svg/latest.json".to_string(),
-            ),
+            update_url: Some(UPDATE_URL.to_string()),
         }
     }
 
