@@ -26,6 +26,17 @@ use svg_format::{
 #[cfg(feature = "schema")]
 pub mod schema;
 
+/// Canonical URL for this build's published JSON Schema on `plugins.dprint.dev`.
+///
+/// Used as the runtime-advertised `config_schema_url` in [`PluginInfo`] and as the
+/// `$id` baked into the generated `schema.json` artifact. Keeping both in sync
+/// from a single constant prevents the two from drifting apart.
+pub(crate) const SCHEMA_URL: &str = concat!(
+    "https://plugins.dprint.dev/kjanat/dprint-plugin-svg/v",
+    env!("CARGO_PKG_VERSION"),
+    "/schema.json",
+);
+
 /// # The [`SyncPluginHandler`] implementation for the SVG formatter.
 ///
 /// Stateless — all configuration is resolved per-request from the
@@ -371,16 +382,12 @@ pub struct Configuration {
 
 impl SyncPluginHandler<Configuration> for SvgWasmPluginHandler {
     fn plugin_info(&mut self) -> PluginInfo {
-        let version = env!("CARGO_PKG_VERSION").to_string();
         PluginInfo {
             name: env!("CARGO_PKG_NAME").to_string(),
-            version: version.clone(),
+            version: env!("CARGO_PKG_VERSION").to_string(),
             config_key: "svg".to_string(),
             help_url: "https://github.com/kjanat/dprint-plugin-svg".to_string(),
-            config_schema_url: format!(
-                "https://plugins.dprint.dev/kjanat/dprint-plugin-svg/v{}/schema.json",
-                version
-            ),
+            config_schema_url: SCHEMA_URL.to_string(),
             update_url: Some(
                 "https://plugins.dprint.dev/kjanat/dprint-plugin-svg/latest.json".to_string(),
             ),

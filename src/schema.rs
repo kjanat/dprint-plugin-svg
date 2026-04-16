@@ -200,13 +200,7 @@ pub fn finalize_schema_value(value: &mut Value) {
         "$schema".to_string(),
         json!("http://json-schema.org/draft-07/schema#"),
     );
-    obj.insert(
-        "$id".to_string(),
-        json!(format!(
-            "https://plugins.dprint.dev/kjanat/dprint-plugin-svg/v{}/schema.json",
-            env!("CARGO_PKG_VERSION")
-        )),
-    );
+    obj.insert("$id".to_string(), json!(crate::SCHEMA_URL));
 
     reorder_root_keys(
         obj,
