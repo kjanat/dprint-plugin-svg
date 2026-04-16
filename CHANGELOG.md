@@ -19,6 +19,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `tree-sitter-language-0.1.7/wasm/src/stdlib.c`. Added `-Wno-error=incompatible-pointer-types`
   to the wasm CFLAGS as a targeted workaround for the upstream typedef issue.
 
+### Added
+
+- Cancellation is now honored mid-format, not just before formatting starts. Each embedded
+  `<style>`/`<script>`/`<foreignObject>` host-format delegation checks
+  `request.token.is_cancelled()` before issuing, and the main format path re-checks after
+  `svg_format::format_with_host` returns. A cancelled request yields `Ok(None)` (no change)
+  instead of a partially-formatted result.
+
 ### Changed
 
 - Pinned Rust toolchain to `nightly` with the `wasm32-unknown-unknown` target and

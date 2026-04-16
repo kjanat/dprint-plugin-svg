@@ -595,7 +595,7 @@ impl SyncPluginHandler<Configuration> for SvgWasmPluginHandler {
         let mut host_err: Option<anyhow::Error> = None;
 
         let mut formatted = svg_format::format_with_host(source, options, &mut |embedded| {
-            if !do_embedded {
+            if !do_embedded || request.token.is_cancelled() {
                 return None;
             }
             let ext = match embedded.language {
@@ -650,6 +650,9 @@ impl SyncPluginHandler<Configuration> for SvgWasmPluginHandler {
             }
         });
 
+        if request.token.is_cancelled() {
+            return Ok(None);
+        }
         if let Some(e) = host_err {
             return Err(e);
         }
