@@ -7,18 +7,37 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Plugin-reported `config_schema_url` now includes the `v` prefix (e.g. `/v0.2.7/schema.json`)
+  so it matches the release tag path. The previous URL returned 404, breaking editor schema
+  validation and `dprint config update` discovery.
+- Wasm build on Clang 16+ no longer fails with `incompatible pointer types` errors in
+  `tree-sitter-language-0.1.7/wasm/src/stdlib.c`. Added `-Wno-error=incompatible-pointer-types`
+  to the wasm CFLAGS as a targeted workaround for the upstream typedef issue.
+
+### Changed
+
+- Pinned Rust toolchain to `nightly` with the `wasm32-unknown-unknown` target and
+  `rustfmt`, `clippy` components via `rust-toolchain.toml` so contributors get a consistent
+  build environment.
+- `justfile` recipes are now grouped under `check`, `build`, and `docs` for a cleaner
+  `just --list` output; `set unstable := true` enables the recipe-group feature.
+
 ## [0.2.7] - 2026-04-15
 
 ### Fixed
 
-- Embedded host formatter configuration errors now fall back to preserving the original `<script>`, `<style>`, or `<foreignObject>` content instead of failing the whole SVG format request.
+- Embedded host formatter configuration errors now fall back to preserving the original
+  `<script>`, `<style>`, or `<foreignObject>` content instead of failing the whole SVG format request.
 - `/bump` command used `git push --atomic` which doesn't push tags; changed to `git push --follow-tags`.
 
 ## [0.2.6] - 2026-03-30
 
 ### Fixed
 
-- `blankLines` option now applies inside embedded `<script>`/`<style>` blocks, not just between sibling elements. Double blank lines in host-formatted CSS/JS are collapsed per the configured policy.
+- `blankLines` option now applies inside embedded `<script>`/`<style>` blocks, not just between sibling elements.
+  Double blank lines in host-formatted CSS/JS are collapsed per the configured policy.
 - Leading/trailing blank lines in host formatter output are stripped so no blank line leaks between tags and embedded content.
 
 ### Added
@@ -30,13 +49,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- Embedded `<script>`/`<style>` formatting failed on XML-encoded content (e.g. `&lt;` in `for (i < n)`). Entity references are now decoded before delegating to the host formatter and re-encoded on return.
+- Embedded `<script>`/`<style>` formatting failed on XML-encoded content (e.g. `&lt;` in `for (i < n)`).
+  Entity references are now decoded before delegating to the host formatter and re-encoded on return.
 
 ## [0.2.4] - 2026-03-30
 
 ### Fixed
 
-- WASM stack overflow crash ("out of bounds memory access") when formatting large or complex SVG files (e.g. Inkscape-generated documents with hundreds of nodes). Increased WASM stack size from 1 MB to 10 MB.
+- WASM stack overflow crash ("out of bounds memory access") when formatting large or complex SVG files
+  (e.g. Inkscape-generated documents with hundreds of nodes). Increased WASM stack size from 1 MB to 10 MB.
 
 ## [0.2.3] - 2026-03-29
 
@@ -48,7 +69,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- Publish the hosted schema URL and plugin update URL from wasm plugin metadata so `dprint config update` can discover new `dprint-plugin-svg` releases.
+- Publish the hosted schema URL and plugin update URL from wasm plugin metadata so `dprint config update` can discover
+  new `dprint-plugin-svg` releases.
 
 ## [0.2.1] - 2026-03-29
 
@@ -62,10 +84,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - `textContent` option: control text-node whitespace handling (`collapse`, `maintain`, `prettify`; default: `maintain`).
-- `formatEmbeddedContent` option: delegate `<style>` (CSS), `<script>` (JS), and `<foreignObject>` (HTML) to other dprint plugins via the host callback (default: `true`).
-- `blankLines` option: control blank lines between sibling elements (`remove`, `preserve`, `truncate`, `insert`; default: `truncate`).
+- `formatEmbeddedContent` option: delegate `<style>` (CSS), `<script>` (JS), and `<foreignObject>` (HTML) to other dprint
+  plugins via the host callback (default: `true`).
+- `blankLines` option: control blank lines between sibling elements
+  (`remove`, `preserve`, `truncate`, `insert`; default: `truncate`).
 - Config doc pages for `textContent`, `blankLines`, and `formatEmbeddedContent`.
-- Ignore directives: `<!-- dprint-ignore -->`, `<!-- dprint-ignore-start/end -->`, `<!-- dprint-ignore-file -->` (also works with `svg-format-` prefix).
+- Ignore directives: `<!-- dprint-ignore -->`, `<!-- dprint-ignore-start/end -->`, `<!-- dprint-ignore-file -->`
+  (also works with `svg-format-` prefix).
 - Rustdoc with before/after SVG examples on all config enums and public API.
 - Default values emitted into JSON Schema for editor autocompletion.
 - mdbook configuration reference with per-option before/after examples.
@@ -89,7 +114,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Wasm dprint plugin for formatting SVG files.
-- Configuration options: `lineWidth`, `maxInlineTagWidth`, `useTabs`, `indentWidth`, `attributeSort`, `attributeLayout`, `attributesPerLine`, `spaceBeforeSelfClose`, `quoteStyle`, `wrappedAttributeIndent`, `newLineKind`.
+- Configuration options: `lineWidth`, `maxInlineTagWidth`, `useTabs`, `indentWidth`, `attributeSort`, `attributeLayout`,
+  `attributesPerLine`, `spaceBeforeSelfClose`, `quoteStyle`, `wrappedAttributeIndent`, `newLineKind`.
 - Config schema generated from Rust types via schemars, published as release artifact alongside `plugin.wasm`.
 - Hand-written deployment config schema for editor validation.
 - CI pipeline with format check, clippy lint, tests, and wasm build.

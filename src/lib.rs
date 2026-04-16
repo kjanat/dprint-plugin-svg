@@ -378,7 +378,7 @@ impl SyncPluginHandler<Configuration> for SvgWasmPluginHandler {
             config_key: "svg".to_string(),
             help_url: "https://github.com/kjanat/dprint-plugin-svg".to_string(),
             config_schema_url: format!(
-                "https://plugins.dprint.dev/kjanat/dprint-plugin-svg/{}/schema.json",
+                "https://plugins.dprint.dev/kjanat/dprint-plugin-svg/v{}/schema.json",
                 version
             ),
             update_url: Some(
