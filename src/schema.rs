@@ -203,7 +203,7 @@ pub fn finalize_schema_value(value: &mut Value) {
     obj.insert(
         "$id".to_string(),
         json!(format!(
-            "https://plugins.dprint.dev/kjanat/dprint-plugin-svg/{}/schema.json",
+            "https://plugins.dprint.dev/kjanat/dprint-plugin-svg/v{}/schema.json",
             env!("CARGO_PKG_VERSION")
         )),
     );

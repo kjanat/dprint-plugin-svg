@@ -9,9 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- Plugin-reported `config_schema_url` now includes the `v` prefix (e.g. `/v0.2.7/schema.json`)
-  so it matches the release tag path. The previous URL returned 404, breaking editor schema
-  validation and `dprint config update` discovery.
+- Plugin-reported `config_schema_url` and generated schema `$id` now include the `v` prefix
+  (e.g. `/v0.2.7/schema.json`) so they match the release tag path served by
+  `plugins.dprint.dev`. The previous no-prefix URL returned 404, breaking editor schema
+  validation and `dprint config update` discovery. Both the runtime-advertised URL in
+  `src/lib.rs` and the baked-in `$id` emitted by `src/schema.rs` were affected; fixing only
+  one would have let the next release regenerate the broken URL into the schema artifact.
 - Wasm build on Clang 16+ no longer fails with `incompatible pointer types` errors in
   `tree-sitter-language-0.1.7/wasm/src/stdlib.c`. Added `-Wno-error=incompatible-pointer-types`
   to the wasm CFLAGS as a targeted workaround for the upstream typedef issue.
