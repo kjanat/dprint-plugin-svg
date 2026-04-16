@@ -18,14 +18,14 @@
 
 ## WHERE TO LOOK
 
-| Task                              | Location                                 | Notes                                                     |
-| --------------------------------- | ---------------------------------------- | --------------------------------------------------------- |
-| CI triggers + required checks     | `.github/workflows/ci.yml`               | PRs + pushes to `master`; build, format check, lint, test |
-| Release trigger + uploaded assets | `.github/workflows/release.yml`          | tag pushes `v*`; uploads wasm + schema                    |
-| Pages trigger + deploy target     | `.github/workflows/pages.yml`            | pushes to `master` or manual dispatch                     |
-| Canonical command names           | `justfile`                               | workflows should mirror local commands                    |
-| Release schema artifact           | `deployment/schema.json`                 | must exist and be current                                 |
-| Wasm release artifact path        | `target/wasm32-unknown-unknown/release/` | build output renamed to `plugin.wasm` in release job      |
+| Task                              | Location                                      | Notes                                                     |
+| --------------------------------- | --------------------------------------------- | --------------------------------------------------------- |
+| CI triggers + required checks     | `.github/workflows/ci.yml`                    | PRs + pushes to `master`; build, format check, lint, test |
+| Release trigger + uploaded assets | `.github/workflows/release.yml`               | tag pushes `v*`; uploads wasm + schema                    |
+| Pages trigger + deploy target     | `.github/workflows/pages.yml`                 | pushes to `master` or manual dispatch                     |
+| Canonical command names           | `justfile`                                    | workflows should mirror local commands                    |
+| Release schema artifact           | `deployment/schema.json`                      | must exist and be current                                 |
+| Wasm release artifact path        | `target/wasm32-unknown-unknown/wasm-release/` | build output renamed to `plugin.wasm` in release job      |
 
 ## CONVENTIONS
 

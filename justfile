@@ -12,7 +12,7 @@ alias b := book
 alias cmt := commit
 
 target := "wasm32-unknown-unknown"
-wasmpath := "target" / target / "release/dprint_plugin_svg.wasm"
+wasmpath := "target" / target / "wasm-release/dprint_plugin_svg.wasm"
 schemapath := "deployment/schema.json"
 
 [private]
@@ -35,7 +35,7 @@ test:
 
 [group('build')]
 build-wasm:
-    cargo build --release --target {{ target }}
+    cargo build --profile wasm-release --target {{ target }}
 
 [group('build')]
 schema:

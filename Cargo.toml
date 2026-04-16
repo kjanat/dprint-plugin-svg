@@ -37,3 +37,17 @@ rev     = "917fe2547bc4fe9a364e91b315f26cebe52b061f"
 [features]
 default = []
 schema  = ["dep:schemars"]
+
+# Size-optimized profile for the published wasm artifact. Inherits from
+# `release` and adds aggressive size reductions: opt-level "z", fat LTO,
+# single codegen unit, panic = abort (no unwind tables), and symbol strip.
+# Compile time increases significantly; runtime perf is slightly traded off
+# for the smaller binary, which matters more for a dprint plugin (cold-load
+# cost dominates over steady-state throughput).
+[profile.wasm-release]
+inherits      = "release"
+opt-level     = "z"
+strip         = true
+lto           = "fat"
+panic         = "abort"
+codegen-units = 1

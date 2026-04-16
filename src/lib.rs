@@ -57,11 +57,8 @@ pub(crate) const SCHEMA_URL: &str = const_format::concatcp!(
 /// Update-notification URL for `dprint config update` discovery.
 ///
 /// Stable per repository — resolves server-side to the latest release's wasm.
-pub(crate) const UPDATE_URL: &str = const_format::concatcp!(
-    "https://plugins.dprint.dev/",
-    REPO_PATH,
-    "/latest.json",
-);
+pub(crate) const UPDATE_URL: &str =
+    const_format::concatcp!("https://plugins.dprint.dev/", REPO_PATH, "/latest.json",);
 
 /// # The [`SyncPluginHandler`] implementation for the SVG formatter.
 ///

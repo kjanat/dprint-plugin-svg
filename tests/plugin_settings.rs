@@ -230,7 +230,10 @@ fn mid_format_cancellation_returns_no_change() {
         )
         .expect("format should succeed");
 
-    assert!(format_result.is_none(), "cancelled format must return no change");
+    assert!(
+        format_result.is_none(),
+        "cancelled format must return no change"
+    );
     assert!(
         token.checks.load(Ordering::SeqCst) >= 2,
         "cancellation must be polled at least twice (entry gate + mid-format)"

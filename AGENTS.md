@@ -38,7 +38,7 @@ Rust dprint WASM plugin for SVG formatting. Runtime stays concentrated in `src/l
 ## CONVENTIONS
 
 - Canonical local workflow: `just fmt`, `just lint`, `just test`, `just build-wasm`, `just schema`, `just book`.
-- `just fmt` depends on a built local wasm artifact because `.dprint.jsonc` points at `./target/wasm32-unknown-unknown/release/dprint_plugin_svg.wasm`.
+- `just fmt` depends on a built local wasm artifact because `.dprint.jsonc` points at `./target/wasm32-unknown-unknown/wasm-release/dprint_plugin_svg.wasm`.
 - `svg-format` is pinned to a git `rev` in `Cargo.toml`; current reality is git dependency, not sibling path.
 - CI/test path uses `cargo test --all-targets --all-features`; schema tests run in normal `just test`.
 - Workflow triggers still use `master`.

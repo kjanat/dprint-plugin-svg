@@ -29,6 +29,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Published wasm binary is now built under a dedicated `[profile.wasm-release]` with
+  `opt-level = "z"`, fat LTO, `codegen-units = 1`, `panic = "abort"`, and symbol strip.
+  The resulting binary is ~20% smaller (893 KB → 710 KB locally), which reduces cold-load
+  time in editors and the dprint CLI. Release compile time increases (~12s → ~85s) but
+  is paid only at tag-push time. The stock `[profile.release]` is left unchanged for any
+  other consumers. Build path moved to `target/wasm32-unknown-unknown/wasm-release/`;
+  `just build-wasm`, `.dprint.jsonc`, and the release workflow were updated in lockstep.
 - Pinned Rust toolchain to `nightly` with the `wasm32-unknown-unknown` target and
   `rustfmt`, `clippy` components via `rust-toolchain.toml` so contributors get a consistent
   build environment.

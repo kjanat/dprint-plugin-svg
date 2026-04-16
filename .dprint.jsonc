@@ -36,6 +36,6 @@
     // Runs arbitrary commands defined above.
     "https://plugins.dprint.dev/exec-0.6.2.json@df98f54ffd3092b8a841aedd6d098a2651f16d0a796a40535774f1a8b4b9d463",
     // `dprint add kjanat/svg` will add this plugin with the correct versioned released wasm.
-    "./target/wasm32-unknown-unknown/release/dprint_plugin_svg.wasm",
+    "./target/wasm32-unknown-unknown/wasm-release/dprint_plugin_svg.wasm",
   ],
 }

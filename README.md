@@ -21,7 +21,7 @@ just build-wasm
 
 Artifact path:
 
-`target/wasm32-unknown-unknown/release/dprint_plugin_svg.wasm`
+`target/wasm32-unknown-unknown/wasm-release/dprint_plugin_svg.wasm`
 
 Or print the absolute path:
 
@@ -33,7 +33,9 @@ just plugin-path
 
 ```json
 {
-  "plugins": ["./target/wasm32-unknown-unknown/release/dprint_plugin_svg.wasm"],
+  "plugins": [
+    "./target/wasm32-unknown-unknown/wasm-release/dprint_plugin_svg.wasm"
+  ],
   "svg": {
     "attributeSort": "canonical",
     "attributeLayout": "auto",
