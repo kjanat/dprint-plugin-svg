@@ -193,6 +193,51 @@ fn range_format_request_returns_no_change() {
 }
 
 #[test]
+fn mid_format_cancellation_returns_no_change() {
+    use std::sync::atomic::{AtomicUsize, Ordering};
+
+    // Returns false on the first poll (letting format() past the entry gate),
+    // then true on every subsequent poll — simulating a cancel signal arriving
+    // after formatting has begun.
+    #[derive(Debug)]
+    struct CancelAfterFirst {
+        checks: AtomicUsize,
+    }
+    impl dprint_core::plugins::CancellationToken for CancelAfterFirst {
+        fn is_cancelled(&self) -> bool {
+            self.checks.fetch_add(1, Ordering::SeqCst) > 0
+        }
+    }
+
+    let result = resolve_configuration("defaults-global.dprint.json");
+    assert!(result.diagnostics.is_empty());
+    let token = CancelAfterFirst {
+        checks: AtomicUsize::new(0),
+    };
+    let mut handler = SvgWasmPluginHandler;
+
+    let format_result = handler
+        .format(
+            SyncFormatRequest {
+                file_path: Path::new("test.svg"),
+                file_bytes: b"<svg><rect/></svg>".to_vec(),
+                config_id: FormatConfigId::from_raw(1),
+                config: &result.config,
+                range: None,
+                token: &token,
+            },
+            |_req| Ok(None),
+        )
+        .expect("format should succeed");
+
+    assert!(format_result.is_none(), "cancelled format must return no change");
+    assert!(
+        token.checks.load(Ordering::SeqCst) >= 2,
+        "cancellation must be polled at least twice (entry gate + mid-format)"
+    );
+}
+
+#[test]
 fn global_new_line_kind_is_used_when_svg_setting_is_missing() {
     let result = resolve_configuration("global-crlf-only.dprint.json");
     assert!(result.diagnostics.is_empty());
