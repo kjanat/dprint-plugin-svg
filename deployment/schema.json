@@ -2,7 +2,7 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://plugins.dprint.dev/kjanat/dprint-plugin-svg/v0.4.0/schema.json",
   "title": "dprint SVG plugin configuration",
-  "description": "All fields are optional. Options not set here inherit from the dprint global configuration.",
+  "description": "All fields are optional. Options not set here inherit from the top-level dprint config keys in the same dprint.json.",
   "type": "object",
   "properties": {
     "attributeLayout": {
@@ -60,7 +60,7 @@
       "default": true
     },
     "indentWidth": {
-      "description": "Indent width when useTabs is false. Inherited from dprint global indentWidth when unset. https://dprint-svg.kjanat.com/config/indent-width.html",
+      "description": "Indent width when useTabs is false. Inherited from the top-level `indentWidth` in dprint.json when unset. https://dprint-svg.kjanat.com/config/indent-width.html",
       "type": [
         "integer",
         "null"
@@ -70,7 +70,7 @@
       "maximum": 255
     },
     "lineWidth": {
-      "description": "Fallback line width. Inherited from dprint global lineWidth when unset. https://dprint-svg.kjanat.com/config/line-width.html",
+      "description": "Fallback line width. Inherited from the top-level `lineWidth` in dprint.json when unset. https://dprint-svg.kjanat.com/config/line-width.html",
       "type": [
         "integer",
         "null"
@@ -95,7 +95,7 @@
       "minimum": 1
     },
     "newLineKind": {
-      "description": "Line ending style. Inherited from dprint global newLineKind when unset. https://dprint-svg.kjanat.com/config/new-line-kind.html",
+      "description": "Line ending style. Inherited from the top-level `newLineKind` in dprint.json when unset. https://dprint-svg.kjanat.com/config/new-line-kind.html",
       "anyOf": [
         {
           "$ref": "#/definitions/NewLineKindConfig"
@@ -138,7 +138,7 @@
       "default": "maintain"
     },
     "useTabs": {
-      "description": "Use tabs for indentation. Inherited from dprint global useTabs when unset. https://dprint-svg.kjanat.com/config/use-tabs.html",
+      "description": "Use tabs for indentation. Inherited from the top-level `useTabs` in dprint.json when unset. https://dprint-svg.kjanat.com/config/use-tabs.html",
       "type": [
         "boolean",
         "null"

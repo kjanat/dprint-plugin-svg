@@ -2,10 +2,10 @@
 
 Maximum inline tag width before wrapping attributes
 
-|             |                                       |
-| ----------- | ------------------------------------- |
-| **Type**    | `integer`                             |
-| **Default** | *inherited from dprint global config* |
+|             |                                                             |
+| ----------- | ----------------------------------------------------------- |
+| **Type**    | `integer`                                                   |
+| **Default** | *inherits from the top-level key in the same `dprint.json`* |
 
 ## Config
 

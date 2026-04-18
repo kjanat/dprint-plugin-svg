@@ -1,11 +1,11 @@
 # indentWidth
 
-Indent width when useTabs is false. Inherited from dprint global indentWidth when unset
+Indent width when useTabs is false. Inherited from the top-level `indentWidth` in dprint.json when unset
 
-|             |                                       |
-| ----------- | ------------------------------------- |
-| **Type**    | `integer`                             |
-| **Default** | *inherited from dprint global config* |
+|             |                                                             |
+| ----------- | ----------------------------------------------------------- |
+| **Type**    | `integer`                                                   |
+| **Default** | *inherits from the top-level key in the same `dprint.json`* |
 
 ## Config
 

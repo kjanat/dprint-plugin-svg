@@ -420,7 +420,8 @@ pub struct Configuration {
     pub format_embedded_content: bool,
     /// Resolved document line width, used for embedded content width budget.
     pub line_width: u32,
-    /// Line ending style (inherited from dprint global by default).
+    /// Line ending style (inherits from the top-level `newLineKind` in
+    /// the same `dprint.json` by default).
     pub new_line_kind: NewLineKind,
 }
 

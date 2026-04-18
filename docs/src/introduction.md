@@ -25,11 +25,13 @@ Add plugin-level options under the `"svg"` key in your dprint config:
 }
 ```
 
-## Global config inheritance
+## Top-level config inheritance
 
-Several options fall back to dprint global config when omitted:
+Several options fall back to the top-level keys in the same `dprint.json`
+(not the user-profile "global" config — those are the per-file root
+keys dprint passes to every plugin). When omitted from the `svg` section:
 
-| Plugin option | Falls back to                    |
+| Plugin option | Falls back to top-level          |
 | ------------- | -------------------------------- |
 | `lineWidth`   | `lineWidth` (default `100`)      |
 | `useTabs`     | `useTabs` (default `false`)      |

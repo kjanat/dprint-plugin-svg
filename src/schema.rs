@@ -15,14 +15,15 @@ use crate::{
 
 /// # Top-level configuration schema for the dprint SVG plugin.
 ///
-/// All fields are optional — omitted values fall back to dprint global
-/// config or built-in defaults. Only plugin-owned options emit a JSON
-/// Schema `"default"`; options inherited from globals (`lineWidth`,
-/// `useTabs`, `indentWidth`, `newLineKind`) describe the fallback instead.
+/// All fields are optional — omitted values fall back to the top-level
+/// dprint config keys (same `dprint.json` file) or built-in defaults.
+/// Only plugin-owned options emit a JSON Schema `"default"`; options
+/// inherited from the top level (`lineWidth`, `useTabs`, `indentWidth`,
+/// `newLineKind`) describe the fallback instead.
 #[derive(Clone, Debug, Default, Serialize, JsonSchema)]
 #[schemars(
     title = "dprint SVG plugin configuration",
-    description = "All fields are optional. Options not set here inherit from the dprint global configuration."
+    description = "All fields are optional. Options not set here inherit from the top-level dprint config keys in the same dprint.json."
 )]
 #[serde(rename_all = "camelCase")]
 pub struct DprintSvgConfigSchema {
@@ -30,10 +31,11 @@ pub struct DprintSvgConfigSchema {
     pub locked: Option<bool>,
 
     /// Fallback line width for formatting decisions when maxInlineTagWidth is
-    /// not provided. Inherited from dprint global `lineWidth` when unset.
+    /// not provided. Inherited from the top-level `lineWidth` in the same
+    /// `dprint.json` when unset.
     #[schemars(
         range(min = 1),
-        description = "Fallback line width. Inherited from dprint global lineWidth when unset. https://dprint-svg.kjanat.com/config/line-width.html"
+        description = "Fallback line width. Inherited from the top-level `lineWidth` in dprint.json when unset. https://dprint-svg.kjanat.com/config/line-width.html"
     )]
     pub line_width: Option<u32>,
 
@@ -44,25 +46,25 @@ pub struct DprintSvgConfigSchema {
     )]
     pub max_inline_tag_width: Option<u32>,
 
-    /// Use tabs for indentation instead of spaces. Inherited from dprint
-    /// global `useTabs` when unset.
+    /// Use tabs for indentation instead of spaces. Inherited from the
+    /// top-level `useTabs` in the same `dprint.json` when unset.
     #[schemars(
-        description = "Use tabs for indentation. Inherited from dprint global useTabs when unset. https://dprint-svg.kjanat.com/config/use-tabs.html"
+        description = "Use tabs for indentation. Inherited from the top-level `useTabs` in dprint.json when unset. https://dprint-svg.kjanat.com/config/use-tabs.html"
     )]
     pub use_tabs: Option<bool>,
 
-    /// Indent width when useTabs is false. Inherited from dprint global
-    /// `indentWidth` when unset.
+    /// Indent width when useTabs is false. Inherited from the top-level
+    /// `indentWidth` in the same `dprint.json` when unset.
     #[schemars(
         range(min = 1),
-        description = "Indent width when useTabs is false. Inherited from dprint global indentWidth when unset. https://dprint-svg.kjanat.com/config/indent-width.html"
+        description = "Indent width when useTabs is false. Inherited from the top-level `indentWidth` in dprint.json when unset. https://dprint-svg.kjanat.com/config/indent-width.html"
     )]
     pub indent_width: Option<u8>,
 
-    /// The newline kind to write. Inherited from dprint global `newLineKind`
-    /// when unset.
+    /// The newline kind to write. Inherited from the top-level
+    /// `newLineKind` in the same `dprint.json` when unset.
     #[schemars(
-        description = "Line ending style. Inherited from dprint global newLineKind when unset. https://dprint-svg.kjanat.com/config/new-line-kind.html"
+        description = "Line ending style. Inherited from the top-level `newLineKind` in dprint.json when unset. https://dprint-svg.kjanat.com/config/new-line-kind.html"
     )]
     pub new_line_kind: Option<NewLineKindConfig>,
 
@@ -137,8 +139,9 @@ pub struct DprintSvgConfigSchema {
 /// through the `unmap_*` helpers in [`crate`], so schema defaults are
 /// guaranteed to track the upstream library. Options not modeled by
 /// the library (`lineWidth`, `newLineKind`, `formatEmbeddedContent`,
-/// `useTabs`, `indentWidth`) are inherited from dprint global config
-/// at resolve time — their schema entries carry no `default`.
+/// `useTabs`, `indentWidth`) are inherited from the top-level keys
+/// in the same `dprint.json` at resolve time — their schema entries
+/// carry no `default`.
 mod defaults {
     use super::*;
     use crate::{

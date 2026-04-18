@@ -1,11 +1,11 @@
 # useTabs
 
-Use tabs for indentation. Inherited from dprint global useTabs when unset
+Use tabs for indentation. Inherited from the top-level `useTabs` in dprint.json when unset
 
-|             |                                       |
-| ----------- | ------------------------------------- |
-| **Type**    | `boolean`                             |
-| **Default** | *inherited from dprint global config* |
+|             |                                                             |
+| ----------- | ----------------------------------------------------------- |
+| **Type**    | `boolean`                                                   |
+| **Default** | *inherits from the top-level key in the same `dprint.json`* |
 
 ## Config
 

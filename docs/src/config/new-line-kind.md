@@ -1,11 +1,11 @@
 # newLineKind
 
-Line ending style. Inherited from dprint global newLineKind when unset
+Line ending style. Inherited from the top-level `newLineKind` in dprint.json when unset
 
-|             |                                       |
-| ----------- | ------------------------------------- |
-| **Type**    | `"auto"` \| `"lf"` \| `"crlf"`        |
-| **Default** | *inherited from dprint global config* |
+|             |                                                             |
+| ----------- | ----------------------------------------------------------- |
+| **Type**    | `"auto"` \| `"lf"` \| `"crlf"`                              |
+| **Default** | *inherits from the top-level key in the same `dprint.json`* |
 
 ## Values
 

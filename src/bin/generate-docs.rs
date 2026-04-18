@@ -467,7 +467,7 @@ fn render_option_page(property: &Property, examples: &HashMap<String, ExampleBlo
     if let Some(default) = &property.default {
         out.push_str(&format!("| **Default** | {default} |\n"));
     } else {
-        out.push_str("| **Default** | *inherited from dprint global config* |\n");
+        out.push_str("| **Default** | *inherits from the top-level key in the same `dprint.json`* |\n");
     }
     out.push('\n');
 
@@ -549,7 +549,7 @@ fn render_defaults_table(properties: &[Property]) -> String {
     out.push_str("| Option | Type | Default |\n");
     out.push_str("| ------ | ---- | ------- |\n");
     for property in properties {
-        let default = property.default.as_deref().unwrap_or("*global*");
+        let default = property.default.as_deref().unwrap_or("*top-level*");
         out.push_str(&format!(
             "| [{name}](./config/{file}) | {ty} | {default} |\n",
             name = property.name,
