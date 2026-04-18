@@ -7,6 +7,56 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-04-18
+
+### Changed
+
+- Plugin defaults now mirror `svg_format::FormatOptions::default()` verbatim
+  via reverse-mapper (`unmap_*`) helpers. Every library-owned option
+  (`useTabs`, `attributeSort`, `attributeLayout`, `attributesPerLine`,
+  `spaceBeforeSelfClose`, `quoteStyle`, `wrappedAttributeIndent`,
+  `textContent`, `blankLines`) inherits its default from the upstream
+  library — hardcoded drift is no longer possible. Options the library
+  doesn't model (`lineWidth`, `newLineKind`, `formatEmbeddedContent`)
+  retain plugin-specific fallbacks.
+- Library defaults flipped to W3-canonical style:
+  `insert_spaces` → `true` (two-space indent) and
+  `wrapped_attribute_indent` → `AlignToTagName`. Plugin users see
+  matching defaults (`useTabs: false`, `wrappedAttributeIndent:
+  "align-to-tag-name"`) unless overridden in `dprint.json`.
+- Canonical attribute-sort groups are now finer-grained: identity
+  (`id`, `class`) → geometry (`x/y/cx/cy/width/...`) → drawing
+  (`d`, `points`, `transform`) → references (`href`, `xlink:href`) →
+  presentation (`fill`, `stroke`, `style`, `stroke-*`, `opacity`,
+  ...) → other (alphabetical) → namespaces (`xmlns`, `xmlns:*`) →
+  version. The wrap algorithm breaks at these group boundaries
+  rather than a fixed `attributesPerLine` chunk, giving semantically
+  meaningful line breaks. A group whose rendered width exceeds the
+  per-line budget falls back to one-attr-per-line within that group.
+
+### Added
+
+- Automatic path-data wrap: `<path d="…">` and
+  `<polyline/polygon> points="…">` values that would overflow
+  `maxInlineTagWidth` are broken at SVG segment boundaries
+  (`M`/`L`/`C`/etc. for paths, `x,y` pairs for points) rather than
+  left as one long line. Subpath starts (`M`/`m`) are preferred as
+  break points so path sections stay visually grouped. Real-world
+  case: a 12kB single-line minified Firefox path now wraps into
+  ~20 readable lines aligned under the opening quote.
+- Generated book: `cargo run --features docs --bin generate-docs`
+  produces every `docs/src/config/*.md` page plus
+  `_generated/summary-config.md` + `_generated/defaults-table.md`
+  fragments from the Rust source. Per-option page content is
+  derived from the JSON Schema (property name, type, default,
+  enum variants) and from tagged rustdoc fenced blocks
+  (`svg-input` and `svg-output <variant>` on each
+  `*Config` enum). `just book` runs the generator before
+  `mdbook build`; `just docs-check` fails if the working tree
+  differs from what the generator would emit. The hand-written
+  `introduction.md` and `ignoring-code.md` pages are preserved;
+  all other docs are authoritative-generated.
+
 ## [0.3.0] - 2026-04-18
 
 ### Changed
@@ -219,7 +269,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Config schema and runtime parsing use the same newline enum.
 - Schema output is deterministic across regeneration.
 
-[Unreleased]: https://github.com/kjanat/dprint-plugin-svg/compare/v0.3.0...HEAD
+[Unreleased]: https://github.com/kjanat/dprint-plugin-svg/compare/v0.4.0...HEAD
+[0.4.0]: https://github.com/kjanat/dprint-plugin-svg/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/kjanat/dprint-plugin-svg/compare/v0.2.9...v0.3.0
 [0.2.9]: https://github.com/kjanat/dprint-plugin-svg/compare/v0.2.8...v0.2.9
 [0.2.8]: https://github.com/kjanat/dprint-plugin-svg/compare/v0.2.7...v0.2.8
