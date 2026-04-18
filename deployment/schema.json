@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "https://plugins.dprint.dev/kjanat/dprint-plugin-svg/v0.2.8/schema.json",
+  "$id": "https://plugins.dprint.dev/kjanat/dprint-plugin-svg/v0.2.9/schema.json",
   "title": "dprint SVG plugin configuration",
   "description": "All fields are optional. Options not set here inherit from the dprint global configuration.",
   "type": "object",

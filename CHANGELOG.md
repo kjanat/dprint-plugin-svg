@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.9] - 2026-04-18
+
+### Fixed
+
+- Embedded `<style>` blocks wrapped in `<![CDATA[...]]>` no longer fail
+  delegation to the CSS host formatter with "syntax error at line 0, col 0:
+  CSS rule is expected". The W3 canonical SVG path samples (and any other
+  SVG-spec-style file) wrap stylesheets in CDATA so CSS `>` and `&` don't
+  confuse the XML parser; tree-sitter-svg's `_raw_text` scanner captures
+  the CDATA markers opaquely as part of the style content, which the CSS
+  plugin then choked on. The plugin now peels `<![CDATA[`/`]]>` before
+  handing content off and re-wraps on output, preserving the author's
+  XML-safety guarantee. XML entity decoding is also now skipped for
+  CDATA-sourced content so literals like `content: "a & b"` round-trip
+  without being mangled to `&amp;`.
+
 ## [0.2.8] - 2026-04-18
 
 ### Fixed
@@ -169,7 +185,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Config schema and runtime parsing use the same newline enum.
 - Schema output is deterministic across regeneration.
 
-[Unreleased]: https://github.com/kjanat/dprint-plugin-svg/compare/v0.2.8...HEAD
+[Unreleased]: https://github.com/kjanat/dprint-plugin-svg/compare/v0.2.9...HEAD
+[0.2.9]: https://github.com/kjanat/dprint-plugin-svg/compare/v0.2.8...v0.2.9
 [0.2.8]: https://github.com/kjanat/dprint-plugin-svg/compare/v0.2.7...v0.2.8
 [0.2.7]: https://github.com/kjanat/dprint-plugin-svg/compare/v0.2.6...v0.2.7
 [0.2.6]: https://github.com/kjanat/dprint-plugin-svg/compare/v0.2.5...v0.2.6
