@@ -471,7 +471,9 @@ fn render_option_page(property: &Property, examples: &HashMap<String, ExampleBlo
     if let Some(default) = &property.default {
         out.push_str(&format!("| **Default** | {default} |\n"));
     } else {
-        out.push_str("| **Default** | *inherits from the top-level key in the same `dprint.json`* |\n");
+        out.push_str(
+            "| **Default** | *inherits from the top-level key in the same `dprint.json`* |\n",
+        );
     }
     out.push('\n');
 
