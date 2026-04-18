@@ -155,6 +155,44 @@ fn format_respects_new_line_kind_crlf() {
 }
 
 #[test]
+fn crlf_source_on_parse_failure_is_stable_under_reformat() {
+    // When tree-sitter-svg fails to parse, svg-format returns the source
+    // verbatim. Combined with a blanket `replace('\n', "\r\n")` under
+    // auto-detected CRLF, this used to multiply the CR byte on each pass
+    // ("\r\n" → "\r\r\n" → "\r\r\r\n"), never reaching a fixed point.
+    // Regression: the plugin must produce a stable output (no CRs doubling).
+    //
+    // We deliberately construct a malformed SVG to force the parse-error
+    // fallback so this regression keeps protecting us even if tree-sitter's
+    // coverage improves.
+    let input_bytes: Vec<u8> = b"\r\n<svg><unclosed \r\n</svg>\r\n".to_vec();
+
+    let mut plugin = ConfigKeyMap::new();
+    plugin.insert(
+        "newLineKind".to_string(),
+        ConfigKeyValue::String("auto".into()),
+    );
+    let (global, _) = (GlobalConfiguration::default(), ConfigKeyMap::new());
+    let mut handler = SvgWasmPluginHandler;
+    let config = handler.resolve_config(plugin, &global).config;
+
+    let first = format_with_config(&config, std::str::from_utf8(&input_bytes).unwrap())
+        .map_or_else(|| input_bytes.clone(), String::into_bytes);
+    let second = format_with_config(&config, std::str::from_utf8(&first).unwrap())
+        .map_or_else(|| first.clone(), String::into_bytes);
+
+    assert_eq!(
+        first, second,
+        "second pass should be identical to first (stable fixed point)",
+    );
+    // And no run of CRs (no "\r\r" anywhere — catches the old doubling bug).
+    assert!(
+        !first.windows(2).any(|w| w == b"\r\r"),
+        "output contains \\r\\r — CRs are doubling: {first:?}",
+    );
+}
+
+#[test]
 fn resolve_config_validates_attributes_per_line() {
     let result = resolve_configuration("attrs-per-line-invalid.dprint.json");
 

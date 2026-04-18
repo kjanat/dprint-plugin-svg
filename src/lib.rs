@@ -654,6 +654,14 @@ impl SyncPluginHandler<Configuration> for SvgWasmPluginHandler {
             return Err(e);
         }
 
+        // Defensive: strip any stray CRs from `formatted` before applying the
+        // target newline. svg_format is expected to produce pure LF, but if it
+        // ever passes through source CRs (e.g. on the parse-error fallback)
+        // a blanket replace('\n', "\r\n") would double them into "\r\r\n",
+        // growing the file by one byte per CRLF on every format pass.
+        if formatted.contains('\r') {
+            formatted = formatted.replace("\r\n", "\n").replace('\r', "\n");
+        }
         let newline = resolve_new_line_kind(source, request.config.new_line_kind);
         if newline != "\n" {
             formatted = formatted.replace('\n', newline);

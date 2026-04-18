@@ -7,8 +7,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.8] - 2026-04-18
+
 ### Fixed
 
+- Minified SVGs with chained single-coordinate path commands (e.g. `v.007-.009`
+  or `h1-2`) and chained curveto arguments (C/S/Q/T with trailing coordinate
+  groups) now actually format instead of silently round-tripping unchanged.
+  Under the previous pinned `tree-sitter-svg`, the grammar rejected these
+  compact forms as parse errors, and `svg_format` fell back to returning the
+  source verbatim — the plugin reported success with an unformatted file.
+  Upstream grammar fixes (tree-sitter-svg `dddee79`, `4f178c0`, `6f50d36`)
+  extend h/v and C/S/Q/T repeats via a shared `_number_continuation`
+  external scanner token, matching the SVG 2 path spec's implicit-repetition
+  rule for every lineto/curveto family. Real-world regression: Firefox-style
+  compact SVGs (`samples/firefox.svg`) now format into multi-line indented
+  output as the README advertises.
+- CRLF sources whose tree-sitter parse fails no longer bloat on each format pass. When
+  `svg_format` falls back to returning source bytes verbatim (parse error, ignore-file
+  directive, etc.) the bytes may still contain `\r`. The subsequent
+  `formatted.replace('\n', newline)` under auto-detected CRLF would turn each `\r\n` into
+  `\r\r\n`, adding one byte per line ending per pass and never reaching a stable fixed
+  point — dprint bailed with "Formatting not stable. Bailed after 5 tries." The plugin
+  now normalizes any stray CRs out of `formatted` before re-applying the target newline,
+  so the transformation stays idempotent regardless of what `svg_format` hands back.
 - Plugin-reported `config_schema_url` and generated schema `$id` now include the `v` prefix
   (e.g. `/v0.2.7/schema.json`) so they match the release tag path served by
   `plugins.dprint.dev`. The previous no-prefix URL returned 404, breaking editor schema
@@ -147,7 +169,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Config schema and runtime parsing use the same newline enum.
 - Schema output is deterministic across regeneration.
 
-[Unreleased]: https://github.com/kjanat/dprint-plugin-svg/compare/v0.2.7...HEAD
+[Unreleased]: https://github.com/kjanat/dprint-plugin-svg/compare/v0.2.8...HEAD
+[0.2.8]: https://github.com/kjanat/dprint-plugin-svg/compare/v0.2.7...v0.2.8
 [0.2.7]: https://github.com/kjanat/dprint-plugin-svg/compare/v0.2.6...v0.2.7
 [0.2.6]: https://github.com/kjanat/dprint-plugin-svg/compare/v0.2.5...v0.2.6
 [0.2.5]: https://github.com/kjanat/dprint-plugin-svg/compare/v0.2.4...v0.2.5
