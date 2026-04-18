@@ -17,11 +17,15 @@ jobs:
       url: ${{ steps.deploy.outputs.page_url }}
     steps:
       - uses: actions/checkout@v6
-        with: { fetch-depth: 0 }
       - uses: taiki-e/install-action@mdbook
-      - name: Inject latest tag into docs
+      - name: Inject plugin version into docs
+        # Source of truth is `Cargo.toml` — not `git describe` — so the
+        # published quick-start URL always matches the crate version
+        # currently being deployed, regardless of whether the release
+        # tag has been pushed yet.
         run: |
-          TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
+          VERSION=$(grep -m1 '^version' Cargo.toml | cut -d'"' -f2)
+          TAG="v$VERSION"
           find docs/src -name '*.md' -exec sed -i "s/{{LATEST_TAG}}/$TAG/g" {} +
       - run: mdbook build docs
       - uses: actions/upload-pages-artifact@v4
