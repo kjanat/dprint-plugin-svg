@@ -16,9 +16,15 @@
 //!    interpolates into each page's `## Values` section.
 //!
 //! Hand-maintained pages (`introduction.md`, `ignoring-code.md`) are
-//! untouched; everything under `docs/src/config/` and the `_generated/`
-//! fragments included by `SUMMARY.md` / `introduction.md` are rewritten
-//! from scratch on every run.
+//! untouched. Everything under `docs/src/config/`, the `_generated/`
+//! fragments included by `introduction.md`, AND `SUMMARY.md` itself
+//! are rewritten from scratch on every run.
+//!
+//! `SUMMARY.md` is generated (not `{{#include}}`-based) because
+//! mdbook's `links` preprocessor expands `{{#include}}` on chapter
+//! content only; in `SUMMARY.md` the helper remains literal text and
+//! no config chapters get registered. A complete, statically-built
+//! `SUMMARY.md` sidesteps that entirely.
 
 use std::collections::{BTreeMap, HashMap};
 use std::env;
@@ -102,6 +108,10 @@ fn run(check_mode: bool) -> Result<usize, Box<dyn std::error::Error>> {
     outputs.insert(
         PathBuf::from(GENERATED_DIR).join("defaults-table.md"),
         render_defaults_table(&properties),
+    );
+    outputs.insert(
+        PathBuf::from("docs/src").join("SUMMARY.md"),
+        render_summary(&properties),
     );
 
     let mut changed = 0usize;
@@ -517,6 +527,20 @@ fn render_summary_fragment(properties: &[Property]) -> String {
             page_filename(&property.name)
         ));
     }
+    out
+}
+
+/// Render the full `SUMMARY.md` — the static Introduction/Ignoring Code
+/// preamble plus one sidebar entry per config property. mdbook does NOT
+/// expand `{{#include}}` inside SUMMARY.md, so the sidebar must be
+/// materialised here instead of deferred to the preprocessor.
+fn render_summary(properties: &[Property]) -> String {
+    let mut out = String::new();
+    out.push_str("# Summary\n\n");
+    out.push_str("[Introduction](./introduction.md)\n");
+    out.push_str("[Ignoring Code](./ignoring-code.md)\n\n");
+    out.push_str("## Configuration\n\n");
+    out.push_str(&render_summary_fragment(properties));
     out
 }
 

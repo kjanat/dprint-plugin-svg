@@ -3,12 +3,19 @@
 [Introduction](./introduction.md)
 [Ignoring Code](./ignoring-code.md)
 
-<!-- prettier-ignore-start -->
-<!-- dprint-ignore-start -->
-
 ## Configuration
 
-{{#include ./_generated/summary-config.md}}
-
-<!-- dprint-ignore-end -->
-<!-- prettier-ignore-end -->
+- [attributeLayout](./config/attribute-layout.md)
+- [attributeSort](./config/attribute-sort.md)
+- [attributesPerLine](./config/attributes-per-line.md)
+- [blankLines](./config/blank-lines.md)
+- [formatEmbeddedContent](./config/format-embedded-content.md)
+- [indentWidth](./config/indent-width.md)
+- [lineWidth](./config/line-width.md)
+- [maxInlineTagWidth](./config/max-inline-tag-width.md)
+- [newLineKind](./config/new-line-kind.md)
+- [quoteStyle](./config/quote-style.md)
+- [spaceBeforeSelfClose](./config/space-before-self-close.md)
+- [textContent](./config/text-content.md)
+- [useTabs](./config/use-tabs.md)
+- [wrappedAttributeIndent](./config/wrapped-attribute-indent.md)
