@@ -113,6 +113,10 @@ fn run(check_mode: bool) -> Result<usize, Box<dyn std::error::Error>> {
         PathBuf::from("docs/src").join("SUMMARY.md"),
         render_summary(&properties),
     );
+    outputs.insert(
+        PathBuf::from(GENERATED_DIR).join("quickstart.md"),
+        render_quickstart(),
+    );
 
     let mut changed = 0usize;
     for (path, content) in outputs {
@@ -528,6 +532,29 @@ fn render_summary_fragment(properties: &[Property]) -> String {
         ));
     }
     out
+}
+
+/// Render the Quick-start JSON config snippet with the plugin version
+/// baked in. Sourced from `env!("CARGO_PKG_VERSION")` at generator
+/// compile time, which means the snippet always matches whatever
+/// `Cargo.toml` declared at the commit being built — no CI-side
+/// `{{LATEST_TAG}}` sed hack, no `git describe` tag-timing race.
+fn render_quickstart() -> String {
+    format!(
+        "```json\n\
+         {{\n\
+         \x20 \"svg\": {{\n\
+         \x20   \"attributeSort\": \"canonical\",\n\
+         \x20   \"attributeLayout\": \"auto\",\n\
+         \x20   \"spaceBeforeSelfClose\": true\n\
+         \x20 }},\n\
+         \x20 \"plugins\": [\n\
+         \x20   \"https://plugins.dprint.dev/kjanat/svg-v{version}.wasm\"\n\
+         \x20 ]\n\
+         }}\n\
+         ```\n",
+        version = env!("CARGO_PKG_VERSION"),
+    )
 }
 
 /// Render the full `SUMMARY.md` — the static Introduction/Ignoring Code

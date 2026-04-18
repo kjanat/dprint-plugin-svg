@@ -12,18 +12,7 @@ dprint add kjanat/svg
 
 Add plugin-level options under the `"svg"` key in your dprint config:
 
-```json
-{
-  "svg": {
-    "attributeSort": "canonical",
-    "attributeLayout": "auto",
-    "spaceBeforeSelfClose": true
-  },
-  "plugins": [
-    "https://plugins.dprint.dev/kjanat/svg-{{LATEST_TAG}}.wasm"
-  ]
-}
-```
+{{#include ./_generated/quickstart.md}}
 
 ## Top-level config inheritance
 
