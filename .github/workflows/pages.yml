@@ -35,7 +35,7 @@ jobs:
           TAG="v$(yq -p toml '.package.version' Cargo.toml)"
           find docs/src -name '*.md' -exec sed -i "s/{{LATEST_TAG}}/$TAG/g" {} +
       - run: mdbook build docs
-      - uses: actions/upload-pages-artifact@v4
+      - uses: actions/upload-pages-artifact@v5
         with: { path: docs/book }
       - id: deploy
         uses: actions/deploy-pages@v5
