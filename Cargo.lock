@@ -444,7 +444,7 @@ checksum = "7da8b5736845d9f2fcb837ea5d9e2628564b3b043a70948a3f0b778838c5fb4f"
 [[package]]
 name = "svg-format"
 version = "0.1.0"
-source = "git+https://github.com/kjanat/svg-language-server?rev=e1ff76c844c273220358f95b66f244090d646faa#e1ff76c844c273220358f95b66f244090d646faa"
+source = "git+https://github.com/kjanat/svg-language-server?rev=c934bf943a023dce2e6754239fa86e6159da49f6#c934bf943a023dce2e6754239fa86e6159da49f6"
 dependencies = [
  "clap",
  "tree-sitter",

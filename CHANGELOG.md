@@ -7,6 +7,38 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Default `useTabs` is now `false` (two-space indentation) to match the
+  W3 SVG canonical sample style. Repos that prefer tabs keep the existing
+  top-level `"useTabs": true` override — this change only affects plugin
+  output when no explicit indentation config is set.
+- Canonical attribute sort now trails `xmlns` / `xmlns:*` / `version` at
+  the end of the attribute list, matching the W3 SVG reference samples
+  where the namespace and profile declarations close out the opening
+  `<svg>` tag. Prior canonical order put `xmlns*` first. Grouping is now:
+  `id` → `class` → geometry/presentation → other → `xmlns*` → `version`.
+- `wrappedAttributeIndent: "align-to-tag-name"` now keeps the first
+  attribute on the tag's opening line; subsequent attributes wrap aligned
+  under it. Previously the tag name sat alone on the first line regardless
+  of wrap style. The existing doc example already showed this target
+  shape — the code now matches. `wrappedAttributeIndent: "one-level"` is
+  unchanged.
+
+### Added
+
+- Multi-line attribute values now preserve their source line breaks with
+  continuation lines aligned to the column directly under the first
+  value character. Typical use: a long `<path d="M100,200 C100,100 …">`
+  split across lines at logical path-command boundaries — previously
+  each continuation line was kept at its raw source indentation (which
+  varied by author); now each aligns under the opening quote. The
+  continuation pad mirrors the wrapped-attribute prefix's indent bytes
+  so tabs + spaces mixtures stay aligned at any tab width.
+- Documentation: new `Multi-line attribute values` page covering the
+  alignment behavior, and a `<svg>`-with-namespace-and-version example
+  under `attributeSort` showing the new trailing order.
+
 ## [0.2.9] - 2026-04-18
 
 ### Fixed

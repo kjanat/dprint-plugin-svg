@@ -131,6 +131,10 @@ fn format_respects_attribute_sort_and_quote_style() {
 
 #[test]
 fn format_respects_multiline_layout_and_wrapped_alignment() {
+    // Under AlignToTagName the first attribute sits inline with <tag;
+    // subsequent attributes wrap aligned under it. The wrap column
+    // equals indent + `<tag ` width, so the first-inline attribute's
+    // starting column equals the wrap prefix column.
     let result = resolve_configuration("multiline-align.dprint.json");
     assert!(result.diagnostics.is_empty());
 
@@ -138,7 +142,7 @@ fn format_respects_multiline_layout_and_wrapped_alignment() {
     let output = format_with_config(&result.config, input).expect("should produce formatted text");
     let aligned = format!("\t{}", " ".repeat("linearGradient".len() + 2));
     let expected = format!(
-        "<svg>\n\t<linearGradient\n{aligned}id=\"sky\"\n{aligned}x1=\"0%\"\n{aligned}y1=\"0%\">\n\t</linearGradient>\n</svg>"
+        "<svg>\n\t<linearGradient id=\"sky\"\n{aligned}x1=\"0%\"\n{aligned}y1=\"0%\">\n\t</linearGradient>\n</svg>"
     );
     assert_eq!(output, expected);
 }

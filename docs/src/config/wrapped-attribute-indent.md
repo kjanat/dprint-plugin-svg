@@ -13,7 +13,8 @@ Only visible when attributes are broken onto multiple lines.
 
 ### `"one-level"` (default)
 
-Indent wrapped attributes by one indentation level from the tag's opening `<`:
+Put the tag name alone on the first line; indent wrapped attributes by
+one indentation level from the tag's opening `<`:
 
 ```svg
 <svg>
@@ -28,7 +29,10 @@ Indent wrapped attributes by one indentation level from the tag's opening `<`:
 
 ### `"align-to-tag-name"`
 
-Align wrapped attributes to the character after the tag name:
+Keep the first attribute inline with `<tag`; subsequent attributes wrap
+aligned under it. The wrap column equals `indent + "<" + tag_name + " "`,
+so multi-line attribute values (e.g. a `d="..."` broken across source
+lines) also align cleanly under the opening quote:
 
 ```svg
 <svg>

@@ -441,7 +441,11 @@ impl SyncPluginHandler<Configuration> for SvgWasmPluginHandler {
         let use_tabs = get_value(
             &mut config,
             "useTabs",
-            global_config.use_tabs.unwrap_or(true),
+            // Default to spaces: the W3 SVG canonical samples use two-space
+            // indentation, and minified/design-tool exports have no
+            // indentation preference. Dprint users on a tab-preferring repo
+            // keep the existing top-level `"useTabs": true` override.
+            global_config.use_tabs.unwrap_or(false),
             &mut diagnostics,
         );
         let indent_width = get_value(

@@ -32,7 +32,7 @@ Several options fall back to dprint global config when omitted:
 | Plugin option | Falls back to                    |
 | ------------- | -------------------------------- |
 | `lineWidth`   | `lineWidth` (default `100`)      |
-| `useTabs`     | `useTabs` (default `true`)       |
+| `useTabs`     | `useTabs` (default `false`)      |
 | `indentWidth` | `indentWidth` (default `2`)      |
 | `newLineKind` | `newLineKind` (default `"auto"`) |
 
