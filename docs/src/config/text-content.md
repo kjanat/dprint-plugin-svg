@@ -1,80 +1,48 @@
 # textContent
 
-How text-node whitespace is handled.
+How text-node whitespace is handled
 
-|             |                                          |
-| ----------- | ---------------------------------------- |
-| **Type**    | `"collapse" \| "maintain" \| "prettify"` |
-| **Default** | `"maintain"`                             |
+|             |                                              |
+| ----------- | -------------------------------------------- |
+| **Type**    | `"collapse"` \| `"maintain"` \| `"prettify"` |
+| **Default** | `"maintain"`                                 |
 
 ## Values
 
+### Input
+
+```svg
+<text>  hello   world  </text>
+```
+
 ### `"collapse"`
 
-Collapse runs of whitespace into single spaces, trim lines, skip blanks:
+Collapse whitespace runs to single spaces.
 
 ```svg
-<!-- input -->
-<svg>
-  <text>  hello   world  </text>
-</svg>
+<text>
+  hello world
+</text>
 ```
 
-```svg
-<!-- output -->
-<svg>
-  <text>
-    hello world
-  </text>
-</svg>
-```
+### `"maintain"`
 
-### `"maintain"` (default)
-
-Preserve content structure — dedent then re-indent to SVG depth:
+Preserve relative indentation structure.
 
 ```svg
-<!-- input -->
-<svg>
-  <text>
-    hello
-      world
-  </text>
-</svg>
-```
-
-```svg
-<!-- output — relative indentation preserved -->
-<svg>
-  <text>
-    hello
-      world
-  </text>
-</svg>
+<text>
+  hello   world
+</text>
 ```
 
 ### `"prettify"`
 
-Trim each line, remove blank lines, re-indent to SVG depth:
+Trim each line and re-indent to SVG depth.
 
 ```svg
-<!-- input -->
-<svg>
-  <text>
-    hello
-      world
-  </text>
-</svg>
-```
-
-```svg
-<!-- output — all lines at same depth -->
-<svg>
-  <text>
-    hello
-    world
-  </text>
-</svg>
+<text>
+  hello   world
+</text>
 ```
 
 ## Config

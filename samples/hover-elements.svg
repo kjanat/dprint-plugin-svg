@@ -61,10 +61,7 @@
 
 	<!-- Hover "image": embeds an external image resource -->
 	<image
-		x="340"
-		y="10"
-		width="50"
-		height="50"
+		x="340" y="10" width="50" height="50"
 		href="https://raw.githubusercontent.com/kjanat/svg-language-server/master/samples/assets/hover-image-badge.svg" />
 
 	<!-- Hover "foreignObject": embeds non-SVG content (usually HTML) -->

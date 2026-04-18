@@ -1,110 +1,76 @@
 # blankLines
 
-Control blank lines between sibling elements.
+How blank lines between sibling elements are handled
 
-|             |                                                    |
-| ----------- | -------------------------------------------------- |
-| **Type**    | `"remove" \| "preserve" \| "truncate" \| "insert"` |
-| **Default** | `"truncate"`                                       |
+|             |                                                          |
+| ----------- | -------------------------------------------------------- |
+| **Type**    | `"remove"` \| `"preserve"` \| `"truncate"` \| `"insert"` |
+| **Default** | `"truncate"`                                             |
 
 ## Values
 
-### `"remove"`
-
-Strip all blank lines between siblings:
+### Input
 
 ```svg
-<!-- input -->
 <svg>
-  <text>total visits</text>
+  <rect />
 
-  <!--Legend-->
-  <g transform="translate(46, 248)"></g>
+
+  <!--legend-->
+  <circle />
 </svg>
 ```
 
+### `"remove"`
+
+Strip all blank lines between siblings.
+
 ```svg
-<!-- output — all gaps removed -->
 <svg>
-  <text>total visits</text>
-  <!--Legend-->
-  <g transform="translate(46, 248)"></g>
+  <rect />
+  <!--legend-->
+  <circle />
 </svg>
 ```
 
 ### `"preserve"`
 
-Keep blank lines from source verbatim (0, 1, or 3 — all kept):
+Keep blank lines from source verbatim.
 
 ```svg
-<!-- input -->
 <svg>
-  <text>total visits</text>
+  <rect />
 
 
-
-  <!--Legend-->
+  <!--legend-->
+  <circle />
 </svg>
 ```
 
-```svg
-<!-- output — triple gap kept -->
-<svg>
-  <text>total visits</text>
+### `"truncate"`
 
-
-
-  <!--Legend-->
-</svg>
-```
-
-### `"truncate"` (default)
-
-Collapse 2+ blank lines to exactly 1:
+Collapse 2+ blank lines to exactly 1.
 
 ```svg
-<!-- input -->
 <svg>
-  <text>total visits</text>
+  <rect />
 
-
-
-  <!--Legend-->
-  <g></g>
-</svg>
-```
-
-```svg
-<!-- output — triple gap collapsed to single -->
-<svg>
-  <text>total visits</text>
-
-  <!--Legend-->
-  <g></g>
+  <!--legend-->
+  <circle />
 </svg>
 ```
 
 ### `"insert"`
 
-Force exactly 1 blank line between every sibling element, even if the source had no gap:
+Force exactly 1 blank line between every sibling.
 
 ```svg
-<!-- input -->
 <svg>
-  <text>total visits</text>
-  <!--Legend-->
-  <g></g>
-</svg>
-```
+  <rect />
 
-```svg
-<!-- output — gaps inserted everywhere -->
-<svg>
-  <text>total visits</text>
+  <!--legend-->
 
-  <!--Legend-->
-
-  <g></g>
+  <circle />
 </svg>
 ```
 

@@ -6,8 +6,7 @@
 -->
 <svg
 	viewBox="0 0 400 400"
-	xmlns="http://www.w3.org/2000/svg"
-	xmlns:xlink="http://www.w3.org/1999/xlink">
+	xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
 	<!-- Hover <svg>: Widely available, shows [MDN Reference] | [Spec] links -->
 	<!-- Hover <rect>: Widely available, spec link to SVG2 shapes -->
 	<rect x="10" y="10" rx="8" width="120" height="60" fill="#2a9d8f" />

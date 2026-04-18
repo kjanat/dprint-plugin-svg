@@ -1,59 +1,44 @@
 # attributeLayout
 
-Attribute line-breaking strategy.
+Attribute wrapping mode
 
-|             |                                           |
-| ----------- | ----------------------------------------- |
-| **Type**    | `"auto" \| "single-line" \| "multi-line"` |
-| **Default** | `"auto"`                                  |
+|             |                                               |
+| ----------- | --------------------------------------------- |
+| **Type**    | `"auto"` \| `"single-line"` \| `"multi-line"` |
+| **Default** | `"auto"`                                      |
 
 ## Values
 
-### `"auto"` (default)
-
-The formatter decides based on `maxInlineTagWidth`. Tags that fit within the threshold stay on one line; longer tags wrap.
+### Input
 
 ```svg
-<!-- short tag stays inline -->
-<svg>
-  <circle cx="50" cy="50" r="25" />
-</svg>
+<linearGradient id="sky" x1="0%" y1="0%"></linearGradient>
+```
 
-<!-- long tag wraps -->
-<svg>
-  <rect
-    id="bg"
-    x="0"
-    y="0"
-    width="1920"
-    height="1080"
-    fill="#1a1a2e"
-    stroke="#16213e"
-    stroke-width="2" />
-</svg>
+### `"auto"`
+
+Wrap only when inline width exceeds `maxInlineTagWidth`.
+
+```svg
+<linearGradient id="sky" x1="0%" y1="0%"></linearGradient>
 ```
 
 ### `"single-line"`
 
-Force all attributes onto the same line as the tag name, regardless of width:
+Always keep all attributes on one line.
 
 ```svg
-<svg>
-  <rect id="bg" x="0" y="0" width="1920" height="1080" fill="#1a1a2e" stroke="#16213e" stroke-width="2" />
-</svg>
+<linearGradient id="sky" x1="0%" y1="0%"></linearGradient>
 ```
 
 ### `"multi-line"`
 
-Force every tag to wrap attributes, one per line (or per `attributesPerLine`):
+Always wrap attributes onto separate lines.
 
 ```svg
-<svg>
-  <circle
-    cx="50"
-    cy="50"
-    r="25" />
-</svg>
+<linearGradient id="sky"
+                x1="0%" y1="0%">
+</linearGradient>
 ```
 
 ## Config

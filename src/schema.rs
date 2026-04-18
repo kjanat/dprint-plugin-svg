@@ -133,34 +133,48 @@ pub struct DprintSvgConfigSchema {
 
 /// Default value functions for plugin-owned schema fields.
 ///
-/// Only covers options with static defaults — globally inherited options
-/// (`lineWidth`, `useTabs`, `indentWidth`, `newLineKind`) are excluded.
+/// Each default sources from `svg_format::FormatOptions::default()`
+/// through the `unmap_*` helpers in [`crate`], so schema defaults are
+/// guaranteed to track the upstream library. Options not modeled by
+/// the library (`lineWidth`, `newLineKind`, `formatEmbeddedContent`,
+/// `useTabs`, `indentWidth`) are inherited from dprint global config
+/// at resolve time — their schema entries carry no `default`.
 mod defaults {
     use super::*;
+    use crate::{
+        unmap_attribute_layout, unmap_attribute_sort, unmap_blank_lines, unmap_quote_style,
+        unmap_text_content, unmap_wrapped_attribute_indent,
+    };
+
+    fn svg() -> svg_format::FormatOptions {
+        svg_format::FormatOptions::default()
+    }
 
     pub fn attribute_sort() -> Option<AttributeSortConfig> {
-        Some(AttributeSortConfig::Canonical)
+        Some(unmap_attribute_sort(svg().attribute_sort))
     }
     pub fn attribute_layout() -> Option<AttributeLayoutConfig> {
-        Some(AttributeLayoutConfig::Auto)
+        Some(unmap_attribute_layout(svg().attribute_layout))
     }
     pub fn attributes_per_line() -> Option<u32> {
-        Some(1)
+        Some(u32::try_from(svg().attributes_per_line).unwrap_or(1))
     }
     pub fn space_before_self_close() -> Option<bool> {
-        Some(true)
+        Some(svg().space_before_self_close)
     }
     pub fn quote_style() -> Option<QuoteStyleConfig> {
-        Some(QuoteStyleConfig::Preserve)
+        Some(unmap_quote_style(svg().quote_style))
     }
     pub fn wrapped_attribute_indent() -> Option<WrappedAttributeIndentConfig> {
-        Some(WrappedAttributeIndentConfig::OneLevel)
+        Some(unmap_wrapped_attribute_indent(
+            svg().wrapped_attribute_indent,
+        ))
     }
     pub fn text_content() -> Option<TextContentModeConfig> {
-        Some(TextContentModeConfig::Maintain)
+        Some(unmap_text_content(svg().text_content))
     }
     pub fn blank_lines() -> Option<BlankLinesConfig> {
-        Some(BlankLinesConfig::Truncate)
+        Some(unmap_blank_lines(svg().blank_lines))
     }
     pub fn format_embedded_content() -> Option<bool> {
         Some(true)

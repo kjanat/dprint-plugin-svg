@@ -36,7 +36,15 @@ Several options fall back to dprint global config when omitted:
 | `indentWidth` | `indentWidth` (default `2`)      |
 | `newLineKind` | `newLineKind` (default `"auto"`) |
 
-All other options use plugin-specific defaults documented in each page.
+## Plugin-owned defaults
+
+Every other option resolves from
+[`svg_format::FormatOptions::default()`](https://docs.rs/svg-format) via
+the plugin's config-enum mappers. The table below is generated from the
+live schema on every `mdbook build`; values shown are whatever the
+current source ships.
+
+{{#include ./_generated/defaults-table.md}}
 
 ## Configuration reference
 

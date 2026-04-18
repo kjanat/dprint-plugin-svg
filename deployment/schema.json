@@ -154,7 +154,7 @@
           "type": "null"
         }
       ],
-      "default": "one-level"
+      "default": "align-to-tag-name"
     }
   },
   "definitions": {

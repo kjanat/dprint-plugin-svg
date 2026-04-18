@@ -27,23 +27,17 @@
 
 		<!-- Title -->
 		<text
-			x="20"
-			y="32"
+			x="20" y="32"
 			fill="#eee"
-			font-family="system-ui, sans-serif"
-			font-size="14"
-			font-weight="bold">
+			font-family="system-ui, sans-serif" font-size="14" font-weight="bold">
 			Monthly Revenue
 		</text>
 
 		<!-- Metric -->
 		<text
-			x="20"
-			y="80"
+			x="20" y="80"
 			fill="white"
-			font-family="system-ui, sans-serif"
-			font-size="28"
-			font-weight="bold">
+			font-family="system-ui, sans-serif" font-size="28" font-weight="bold">
 			$48,250
 		</text>
 
@@ -71,10 +65,6 @@
 		<!-- Sparkline -->
 		<polyline
 			points="20,101 60,94 100,98 140,88 180,84 220,91 260,86 300,81"
-			fill="none"
-			stroke="#e94560"
-			stroke-width="2"
-			stroke-linecap="round"
-			stroke-linejoin="round" />
+			fill="none" stroke="#e94560" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
 	</g>
 </svg>

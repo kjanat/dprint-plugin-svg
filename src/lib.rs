@@ -82,14 +82,16 @@ fn is_embedded_host_config_error(err: &anyhow::Error) -> bool {
 ///
 /// Maps 1:1 to [`svg_format::AttributeSort`].
 ///
-/// ```svg
-/// <!-- input -->
+/// ```svg-input
 /// <rect y="20" x="10" height="50" width="100" id="box" />
-///
-/// <!-- canonical (default) -->
+/// ```
+/// ```svg-output none
+/// <rect y="20" x="10" height="50" width="100" id="box" />
+/// ```
+/// ```svg-output canonical
 /// <rect id="box" x="10" y="20" width="100" height="50" />
-///
-/// <!-- alphabetical -->
+/// ```
+/// ```svg-output alphabetical
 /// <rect height="50" id="box" width="100" x="10" y="20" />
 /// ```
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize)]
@@ -118,21 +120,19 @@ dprint_core::generate_str_to_from![
 ///
 /// Maps 1:1 to [`svg_format::AttributeLayout`].
 ///
-/// ```svg
-/// <!-- auto: wraps when inline exceeds maxInlineTagWidth -->
-/// <linearGradient
-///     id="sky"
-///     x1="0%"
-///     y1="0%">
-/// </linearGradient>
-///
-/// <!-- single-line: always one line -->
+/// ```svg-input
 /// <linearGradient id="sky" x1="0%" y1="0%"></linearGradient>
-///
-/// <!-- multi-line: always wrap -->
-/// <rect
-///     id="box"
-///     x="10" />
+/// ```
+/// ```svg-output auto
+/// <linearGradient id="sky" x1="0%" y1="0%"></linearGradient>
+/// ```
+/// ```svg-output single-line
+/// <linearGradient id="sky" x1="0%" y1="0%"></linearGradient>
+/// ```
+/// ```svg-output multi-line
+/// <linearGradient id="sky"
+///                 x1="0%" y1="0%">
+/// </linearGradient>
 /// ```
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
@@ -160,14 +160,16 @@ dprint_core::generate_str_to_from![
 ///
 /// Maps 1:1 to [`svg_format::QuoteStyle`].
 ///
-/// ```svg
-/// <!-- preserve: keeps original -->
+/// ```svg-input
 /// <rect id='box' class="hero" />
-///
-/// <!-- double -->
+/// ```
+/// ```svg-output preserve
+/// <rect id='box' class="hero" />
+/// ```
+/// ```svg-output double
 /// <rect id="box" class="hero" />
-///
-/// <!-- single -->
+/// ```
+/// ```svg-output single
 /// <rect id='box' class='hero' />
 /// ```
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize)]
@@ -197,20 +199,22 @@ dprint_core::generate_str_to_from![
 
 /// # Indentation strategy for wrapped attributes.
 ///
-/// Maps 1:1 to [`svg_format::WrappedAttributeIndent`].
+/// Maps 1:1 to [`svg_format::WrappedAttributeIndent`]. Only applies
+/// when a tag wraps to multiple lines (see `attributeLayout`).
 ///
-/// ```svg
-/// <!-- one-level (default) -->
-/// <linearGradient
-///     id="sky"
-///     x1="0%">
-/// </linearGradient>
-///
-/// <!-- align-to-tag-name -->
-/// <linearGradient
-///                 id="sky"
-///                 x1="0%">
-/// </linearGradient>
+/// ```svg-input
+/// <rect id="box" x="10" y="20" width="100" height="50" fill="red" />
+/// ```
+/// ```svg-output one-level
+/// <rect
+///   id="box"
+///   x="10" y="20" width="100" height="50"
+///   fill="red" />
+/// ```
+/// ```svg-output align-to-tag-name
+/// <rect id="box"
+///       x="10" y="20" width="100" height="50"
+///       fill="red" />
 /// ```
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
@@ -261,23 +265,22 @@ dprint_core::generate_str_to_from![
 ///
 /// Maps 1:1 to [`svg_format::TextContentMode`].
 ///
-/// ```svg
-/// <!-- input -->
+/// ```svg-input
 /// <text>  hello   world  </text>
-///
-/// <!-- collapse -->
+/// ```
+/// ```svg-output collapse
 /// <text>
-///     hello world
+///   hello world
 /// </text>
-///
-/// <!-- maintain (default): preserves relative indentation -->
+/// ```
+/// ```svg-output maintain
 /// <text>
-///     hello   world
+///   hello   world
 /// </text>
-///
-/// <!-- prettify: trims each line -->
+/// ```
+/// ```svg-output prettify
 /// <text>
-///     hello   world
+///   hello   world
 /// </text>
 /// ```
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize)]
@@ -309,38 +312,46 @@ dprint_core::generate_str_to_from![
 ///
 /// Maps 1:1 to [`svg_format::BlankLines`].
 ///
-/// ```svg
-/// <!-- input -->
+/// ```svg-input
 /// <svg>
-///     <rect />
+///   <rect />
 ///
 ///
-///     <!--legend-->
-///     <circle />
+///   <!--legend-->
+///   <circle />
 /// </svg>
-///
-/// <!-- remove: all gaps stripped -->
+/// ```
+/// ```svg-output remove
 /// <svg>
-///     <rect />
-///     <!--legend-->
-///     <circle />
+///   <rect />
+///   <!--legend-->
+///   <circle />
 /// </svg>
-///
-/// <!-- truncate (default): 2+ collapsed to 1 -->
+/// ```
+/// ```svg-output preserve
 /// <svg>
-///     <rect />
+///   <rect />
 ///
-///     <!--legend-->
-///     <circle />
+///
+///   <!--legend-->
+///   <circle />
 /// </svg>
-///
-/// <!-- insert: force gap between every sibling -->
+/// ```
+/// ```svg-output truncate
 /// <svg>
-///     <rect />
+///   <rect />
 ///
-///     <!--legend-->
+///   <!--legend-->
+///   <circle />
+/// </svg>
+/// ```
+/// ```svg-output insert
+/// <svg>
+///   <rect />
 ///
-///     <circle />
+///   <!--legend-->
+///
+///   <circle />
 /// </svg>
 /// ```
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize)]
@@ -386,20 +397,30 @@ pub struct Configuration {
     pub use_tabs: bool,
     /// Spaces per indent level when `use_tabs` is false.
     pub indent_width: u8,
+    /// Attribute ordering mode (see [`AttributeSortConfig`]).
     pub attribute_sort: AttributeSortConfig,
+    /// Attribute wrapping mode (see [`AttributeLayoutConfig`]).
     pub attribute_layout: AttributeLayoutConfig,
     /// Max attributes emitted per line in multi-line mode.
     pub attributes_per_line: u32,
     /// Emit a space before `/>` in self-closing tags.
     pub space_before_self_close: bool,
+    /// Quote style for attribute values (see [`QuoteStyleConfig`]).
     pub quote_style: QuoteStyleConfig,
+    /// Indentation style for wrapped attributes (see
+    /// [`WrappedAttributeIndentConfig`]).
     pub wrapped_attribute_indent: WrappedAttributeIndentConfig,
+    /// How whitespace inside text nodes is handled (see
+    /// [`TextContentModeConfig`]).
     pub text_content: TextContentModeConfig,
+    /// How blank lines between sibling elements are handled (see
+    /// [`BlankLinesConfig`]).
     pub blank_lines: BlankLinesConfig,
     /// Delegate `<style>`/`<script>`/`<foreignObject>` to host plugins.
     pub format_embedded_content: bool,
     /// Resolved document line width, used for embedded content width budget.
     pub line_width: u32,
+    /// Line ending style (inherited from dprint global by default).
     pub new_line_kind: NewLineKind,
 }
 
@@ -426,6 +447,13 @@ impl SyncPluginHandler<Configuration> for SvgWasmPluginHandler {
     ) -> PluginResolveConfigurationResult<Configuration> {
         let mut diagnostics = Vec::<ConfigurationDiagnostic>::new();
 
+        // Invariant: every fallback below mirrors
+        // `svg_format::FormatOptions::default()`. The plugin wraps the
+        // library — its defaults must never drift. Options not modeled
+        // by the library (`lineWidth`, `newLineKind`,
+        // `formatEmbeddedContent`) keep plugin-specific fallbacks.
+        let svg_defaults = svg_format::FormatOptions::default();
+
         let line_width = get_value(
             &mut config,
             "lineWidth",
@@ -441,45 +469,53 @@ impl SyncPluginHandler<Configuration> for SvgWasmPluginHandler {
         let use_tabs = get_value(
             &mut config,
             "useTabs",
-            // Default to spaces: the W3 SVG canonical samples use two-space
-            // indentation, and minified/design-tool exports have no
-            // indentation preference. Dprint users on a tab-preferring repo
-            // keep the existing top-level `"useTabs": true` override.
-            global_config.use_tabs.unwrap_or(false),
+            global_config
+                .use_tabs
+                .unwrap_or(!svg_defaults.insert_spaces),
             &mut diagnostics,
         );
         let indent_width = get_value(
             &mut config,
             "indentWidth",
-            global_config.indent_width.unwrap_or(2),
+            global_config
+                .indent_width
+                .unwrap_or_else(|| u8::try_from(svg_defaults.indent_width).unwrap_or(2)),
             &mut diagnostics,
         );
         let attribute_sort = get_value(
             &mut config,
             "attributeSort",
-            AttributeSortConfig::Canonical,
+            unmap_attribute_sort(svg_defaults.attribute_sort),
             &mut diagnostics,
         );
         let attribute_layout = get_value(
             &mut config,
             "attributeLayout",
-            AttributeLayoutConfig::Auto,
+            unmap_attribute_layout(svg_defaults.attribute_layout),
             &mut diagnostics,
         );
-        let mut attributes_per_line =
-            get_value(&mut config, "attributesPerLine", 1_u32, &mut diagnostics);
-        let space_before_self_close =
-            get_value(&mut config, "spaceBeforeSelfClose", true, &mut diagnostics);
+        let mut attributes_per_line = get_value(
+            &mut config,
+            "attributesPerLine",
+            u32::try_from(svg_defaults.attributes_per_line).unwrap_or(1),
+            &mut diagnostics,
+        );
+        let space_before_self_close = get_value(
+            &mut config,
+            "spaceBeforeSelfClose",
+            svg_defaults.space_before_self_close,
+            &mut diagnostics,
+        );
         let quote_style = get_value(
             &mut config,
             "quoteStyle",
-            QuoteStyleConfig::Preserve,
+            unmap_quote_style(svg_defaults.quote_style),
             &mut diagnostics,
         );
         let wrapped_attribute_indent = get_value(
             &mut config,
             "wrappedAttributeIndent",
-            WrappedAttributeIndentConfig::OneLevel,
+            unmap_wrapped_attribute_indent(svg_defaults.wrapped_attribute_indent),
             &mut diagnostics,
         );
         let global_new_line_default = match global_config.new_line_kind {
@@ -503,13 +539,13 @@ impl SyncPluginHandler<Configuration> for SvgWasmPluginHandler {
         let text_content = get_value(
             &mut config,
             "textContent",
-            TextContentModeConfig::Maintain,
+            unmap_text_content(svg_defaults.text_content),
             &mut diagnostics,
         );
         let blank_lines = get_value(
             &mut config,
             "blankLines",
-            BlankLinesConfig::Truncate,
+            unmap_blank_lines(svg_defaults.blank_lines),
             &mut diagnostics,
         );
         let format_embedded_content =
@@ -679,13 +715,27 @@ impl SyncPluginHandler<Configuration> for SvgWasmPluginHandler {
     }
 }
 
-// ── Config enum → svg_format enum mappers ───────────────────────────
+// ── Config enum ⇄ svg_format enum mappers ──────────────────────────
+//
+// Each pair converts between the plugin-facing Config enum (serialized
+// in `.dprint.json`) and the upstream `svg_format` enum (consumed by
+// the formatter). The `unmap_*` direction is used in `resolve_config`
+// to source defaults from `svg_format::FormatOptions::default()`, so
+// the plugin can never drift from upstream defaults.
 
 fn map_attribute_sort(value: AttributeSortConfig) -> AttributeSort {
     match value {
         AttributeSortConfig::None => AttributeSort::None,
         AttributeSortConfig::Canonical => AttributeSort::Canonical,
         AttributeSortConfig::Alphabetical => AttributeSort::Alphabetical,
+    }
+}
+
+pub(crate) fn unmap_attribute_sort(value: AttributeSort) -> AttributeSortConfig {
+    match value {
+        AttributeSort::None => AttributeSortConfig::None,
+        AttributeSort::Canonical => AttributeSortConfig::Canonical,
+        AttributeSort::Alphabetical => AttributeSortConfig::Alphabetical,
     }
 }
 
@@ -697,6 +747,14 @@ fn map_attribute_layout(value: AttributeLayoutConfig) -> AttributeLayout {
     }
 }
 
+pub(crate) fn unmap_attribute_layout(value: AttributeLayout) -> AttributeLayoutConfig {
+    match value {
+        AttributeLayout::Auto => AttributeLayoutConfig::Auto,
+        AttributeLayout::SingleLine => AttributeLayoutConfig::SingleLine,
+        AttributeLayout::MultiLine => AttributeLayoutConfig::MultiLine,
+    }
+}
+
 fn map_quote_style(value: QuoteStyleConfig) -> QuoteStyle {
     match value {
         QuoteStyleConfig::Preserve => QuoteStyle::Preserve,
@@ -705,10 +763,27 @@ fn map_quote_style(value: QuoteStyleConfig) -> QuoteStyle {
     }
 }
 
+pub(crate) fn unmap_quote_style(value: QuoteStyle) -> QuoteStyleConfig {
+    match value {
+        QuoteStyle::Preserve => QuoteStyleConfig::Preserve,
+        QuoteStyle::Double => QuoteStyleConfig::Double,
+        QuoteStyle::Single => QuoteStyleConfig::Single,
+    }
+}
+
 fn map_wrapped_attribute_indent(value: WrappedAttributeIndentConfig) -> WrappedAttributeIndent {
     match value {
         WrappedAttributeIndentConfig::OneLevel => WrappedAttributeIndent::OneLevel,
         WrappedAttributeIndentConfig::AlignToTagName => WrappedAttributeIndent::AlignToTagName,
+    }
+}
+
+pub(crate) fn unmap_wrapped_attribute_indent(
+    value: WrappedAttributeIndent,
+) -> WrappedAttributeIndentConfig {
+    match value {
+        WrappedAttributeIndent::OneLevel => WrappedAttributeIndentConfig::OneLevel,
+        WrappedAttributeIndent::AlignToTagName => WrappedAttributeIndentConfig::AlignToTagName,
     }
 }
 
@@ -721,11 +796,28 @@ fn map_blank_lines(value: BlankLinesConfig) -> BlankLines {
     }
 }
 
+pub(crate) fn unmap_blank_lines(value: BlankLines) -> BlankLinesConfig {
+    match value {
+        BlankLines::Remove => BlankLinesConfig::Remove,
+        BlankLines::Preserve => BlankLinesConfig::Preserve,
+        BlankLines::Truncate => BlankLinesConfig::Truncate,
+        BlankLines::Insert => BlankLinesConfig::Insert,
+    }
+}
+
 fn map_text_content(value: TextContentModeConfig) -> TextContentMode {
     match value {
         TextContentModeConfig::Collapse => TextContentMode::Collapse,
         TextContentModeConfig::Maintain => TextContentMode::Maintain,
         TextContentModeConfig::Prettify => TextContentMode::Prettify,
+    }
+}
+
+pub(crate) fn unmap_text_content(value: TextContentMode) -> TextContentModeConfig {
+    match value {
+        TextContentMode::Collapse => TextContentModeConfig::Collapse,
+        TextContentMode::Maintain => TextContentModeConfig::Maintain,
+        TextContentMode::Prettify => TextContentModeConfig::Prettify,
     }
 }
 

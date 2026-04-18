@@ -21,6 +21,11 @@ name              = "generate-schema"
 path              = "src/bin/generate-schema.rs"
 required-features = ["schema"]
 
+[[bin]]
+name              = "generate-docs"
+path              = "src/bin/generate-docs.rs"
+required-features = ["docs"]
+
 [dependencies]
 anyhow       = "1"
 const_format = "0.2"
@@ -32,10 +37,11 @@ serde_json   = { version = "1", features = ["preserve_order"] }
 [dependencies.svg-format]
 package = "svg-format"
 git     = "https://github.com/kjanat/svg-language-server"  # path    = "../svg-language-server/crates/svg-format"
-rev     = "c934bf943a023dce2e6754239fa86e6159da49f6"
+rev     = "80d32ce5489600d9f2a6351ab19d4c4ccfa4a5c7"
 
 [features]
 default = []
+docs    = ["schema"]
 schema  = ["dep:schemars"]
 
 # Size-optimized profile for the published wasm artifact. Inherits from

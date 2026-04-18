@@ -1,32 +1,32 @@
 # newLineKind
 
-The newline character(s) to use in formatted output.
+Line ending style. Inherited from dprint global newLineKind when unset
 
-|             |                               |
-| ----------- | ----------------------------- |
-| **Type**    | `"auto" \| "lf" \| "crlf"`    |
-| **Default** | `"auto"` (from global config) |
+|             |                                       |
+| ----------- | ------------------------------------- |
+| **Type**    | `"auto"` \| `"lf"` \| `"crlf"`        |
+| **Default** | *inherited from dprint global config* |
 
 ## Values
 
-### `"auto"` (default)
+### `"auto"`
 
-Detect the newline style from the input file and preserve it. Uses `\n` for new files.
+Detect from the source file.
 
 ### `"lf"`
 
-Force Unix-style line endings (`\n`). Typical for Linux/macOS environments and most version-controlled SVG files.
+Unix-style `\n`.
 
 ### `"crlf"`
 
-Force Windows-style line endings (`\r\n`).
+Windows-style `\r\n`.
 
 ## Config
 
 ```json
 {
   "svg": {
-    "newLineKind": "lf"
+    "newLineKind": null
   }
 }
 ```

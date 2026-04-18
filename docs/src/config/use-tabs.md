@@ -1,42 +1,18 @@
 # useTabs
 
-Use tabs for indentation instead of spaces.
+Use tabs for indentation. Inherited from dprint global useTabs when unset
 
-|             |                              |
-| ----------- | ---------------------------- |
-| **Type**    | `boolean`                    |
-| **Default** | `false` (from global config) |
-
-The plugin default matches the W3 SVG reference samples, which use
-two-space indentation. Set `useTabs: true` (or the top-level dprint
-`"useTabs": true`) when you prefer tabs repo-wide.
-
-## Example
-
-### `useTabs: false` (default)
-
-Uses `indentWidth` spaces per level (default `2`):
-
-```svg
-<svg>
-  <rect x="0" y="0" width="10" height="10" />
-</svg>
-```
-
-### `useTabs: true`
-
-```svg
-<svg>
-	<rect x="0" y="0" width="10" height="10" />
-</svg>
-```
+|             |                                       |
+| ----------- | ------------------------------------- |
+| **Type**    | `boolean`                             |
+| **Default** | *inherited from dprint global config* |
 
 ## Config
 
 ```json
 {
   "svg": {
-    "useTabs": true
+    "useTabs": null
   }
 }
 ```

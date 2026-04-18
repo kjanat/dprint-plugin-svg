@@ -42,10 +42,23 @@ schema:
     cargo run --features schema --bin generate-schema -- {{ schemapath }}
     dprint fmt --log-level error {{ schemapath }}
 
+# Regenerate the config pages + defaults/summary fragments from source.
 [group('build')]
 [group('docs')]
-book:
+book-docs:
+    cargo run --features docs --bin generate-docs
+    dprint fmt --log-level error "docs/src/config/*.md" "docs/src/_generated/*.md"
+
+[group('build')]
+[group('docs')]
+book: book-docs
     mdbook build docs
+
+# Verify generated config pages are up-to-date (CI drift check). Runs the generator + dprint, then `git diff --exit-code` — fails if the working tree changed. Run `just book-docs` + commit to fix.
+[group('check')]
+[group('docs')]
+docs-check: book-docs
+    git diff --exit-code -- docs/src/config docs/src/_generated
 
 [group('docs')]
 plugin-path:
