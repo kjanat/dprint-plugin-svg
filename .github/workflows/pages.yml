@@ -24,8 +24,7 @@ jobs:
         # currently being deployed, regardless of whether the release
         # tag has been pushed yet.
         run: |
-          VERSION=$(grep -m1 '^version' Cargo.toml | cut -d'"' -f2)
-          TAG="v$VERSION"
+          TAG="v$(yq -p toml '.package.version' Cargo.toml)"
           find docs/src -name '*.md' -exec sed -i "s/{{LATEST_TAG}}/$TAG/g" {} +
       - run: mdbook build docs
       - uses: actions/upload-pages-artifact@v4
