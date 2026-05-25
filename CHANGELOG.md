@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.1] - 2026-05-25
+
+### Fixed
+
+- Embedded-content formatting is now best-effort: when a host plugin
+  (e.g. malva for CSS, markup_fmt for HTML inside `<foreignObject>`)
+  fails to parse the body of a `<style>`, `<script>`, or embedded HTML
+  block, the block is preserved verbatim and the rest of the SVG —
+  along with every other file in the run — continues to format.
+  Previously a single malformed embedded block (for example a `<style>`
+  whose CSS used `=` instead of `:`) would abort the whole `dprint fmt`
+  invocation. Note: the host plugin's `line N, col N` still refers to
+  the embedded buffer rather than the file; mapping it back to the SVG
+  source requires upstream support in `svg-language-server` (issue
+  filed there). See issue #5.
+
 ## [0.4.0] - 2026-04-18
 
 ### Changed
@@ -269,7 +285,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Config schema and runtime parsing use the same newline enum.
 - Schema output is deterministic across regeneration.
 
-[Unreleased]: https://github.com/kjanat/dprint-plugin-svg/compare/v0.4.0...HEAD
+[Unreleased]: https://github.com/kjanat/dprint-plugin-svg/compare/v0.4.1...HEAD
+[0.4.1]: https://github.com/kjanat/dprint-plugin-svg/compare/v0.4.0...v0.4.1
 [0.4.0]: https://github.com/kjanat/dprint-plugin-svg/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/kjanat/dprint-plugin-svg/compare/v0.2.9...v0.3.0
 [0.2.9]: https://github.com/kjanat/dprint-plugin-svg/compare/v0.2.8...v0.2.9

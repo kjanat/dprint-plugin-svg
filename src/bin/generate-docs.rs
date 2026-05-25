@@ -6,7 +6,7 @@
 //!
 //! Two inputs drive the output:
 //!
-//! 1. The JSON Schema of [`DprintSvgConfigSchema`]
+//! 1. The JSON Schema of [`dprint_plugin_svg::schema::DprintSvgConfigSchema`]
 //!    (via [`dprint_plugin_svg::schema::generate_schema_value`]) — supplies
 //!    the option list, per-property description, type, default, and for
 //!    enum properties the ordered list of string variants.

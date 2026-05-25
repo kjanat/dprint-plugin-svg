@@ -20,6 +20,14 @@ use crate::{
 /// Only plugin-owned options emit a JSON Schema `"default"`; options
 /// inherited from the top level (`lineWidth`, `useTabs`, `indentWidth`,
 /// `newLineKind`) describe the fallback instead.
+///
+/// # Examples
+///
+/// ```
+/// use dprint_plugin_svg::schema::DprintSvgConfigSchema;
+/// let schema = DprintSvgConfigSchema::default();
+/// assert!(schema.locked.is_none());
+/// ```
 #[derive(Clone, Debug, Default, Serialize, JsonSchema)]
 #[schemars(
     title = "dprint SVG plugin configuration",
@@ -185,6 +193,12 @@ mod defaults {
 }
 
 /// Generate the raw JSON Schema for [`DprintSvgConfigSchema`] using draft-07.
+///
+/// # Examples
+///
+/// ```
+/// let _schema = dprint_plugin_svg::schema::generate_root_schema();
+/// ```
 pub fn generate_root_schema() -> Schema {
     SchemaSettings::draft07()
         .into_generator()
@@ -193,6 +207,13 @@ pub fn generate_root_schema() -> Schema {
 
 /// Generate the schema as a [`serde_json::Value`], finalized with `$schema`,
 /// `$id`, and stable key ordering.
+///
+/// # Examples
+///
+/// ```
+/// let value = dprint_plugin_svg::schema::generate_schema_value().unwrap();
+/// assert!(value.is_object());
+/// ```
 pub fn generate_schema_value() -> Result<Value, serde_json::Error> {
     let mut value = serde_json::to_value(generate_root_schema())?;
     finalize_schema_value(&mut value);
@@ -200,6 +221,15 @@ pub fn generate_schema_value() -> Result<Value, serde_json::Error> {
 }
 
 /// Inject `$schema` / `$id` metadata and sort top-level keys for stable output.
+///
+/// # Examples
+///
+/// ```
+/// use serde_json::json;
+/// let mut value = json!({ "type": "object" });
+/// dprint_plugin_svg::schema::finalize_schema_value(&mut value);
+/// assert!(value.get("$schema").is_some());
+/// ```
 pub fn finalize_schema_value(value: &mut Value) {
     let obj = value
         .as_object_mut()

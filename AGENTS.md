@@ -38,6 +38,7 @@ Rust dprint WASM plugin for SVG formatting. Runtime stays concentrated in `src/l
 ## CONVENTIONS
 
 - Canonical local workflow: `just fmt`, `just lint`, `just test`, `just build-wasm`, `just schema`, `just book`.
+- Optional docs audit (nightly-only): `rustup run nightly -- cargo doc-nightly --all-features --no-deps` enables `rustdoc::missing_doc_code_examples` so every public item needs a `# Examples` block. Layered config lives in `.cargo/nightly.toml`; the regular `cargo doc` stays stable-toolchain clean.
 - `just fmt` depends on a built local wasm artifact because `.dprint.jsonc` points at `./target/wasm32-unknown-unknown/wasm-release/dprint_plugin_svg.wasm`.
 - `svg-format` is pinned to a git `rev` in `Cargo.toml`; current reality is git dependency, not sibling path.
 - CI/test path uses `cargo test --all-targets --all-features`; schema tests run in normal `just test`.

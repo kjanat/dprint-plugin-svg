@@ -1,7 +1,7 @@
 # https://just.systems
 
-set unstable := true
-set positional-arguments := true
+set unstable
+set positional-arguments
 
 alias f := fmt
 alias l := lint
@@ -39,6 +39,12 @@ lint:
 [group('check')]
 test:
     cargo test --all-targets --all-features
+
+# Nightly-only rustdoc audit. Enables `rustdoc::missing_doc_code_examples` (denied via -D warnings) so every public item must carry a `# Examples` block. Layered config lives in `.cargo/nightly.toml`; the regular `cargo doc` stays stable-toolchain clean. Requires a nightly toolchain (e.g. `rustup install nightly --profile minimal`).
+[group('check')]
+[group('docs')]
+doc-nightly:
+    rustup run nightly -- cargo doc-nightly --all-features --no-deps
 
 [group('build')]
 build-wasm:

@@ -31,7 +31,7 @@ src/
 - Preserve early return for unsupported requests (`range`) and cancelled tokens.
 - Keep UTF-8 decoding explicit and error message includes file path.
 - Keep stable config key names/casing (`camelCase` keys in plugin config).
-- Embedded host delegation should gracefully fall back to original content for host configuration errors, but still surface invalid UTF-8 and non-config host failures.
+- Embedded host delegation is opportunistic: every host failure (config error, parse error in the embedded body, non-UTF-8 bytes returned by the host plugin) preserves the original block verbatim and lets the rest of the SVG — and other files in the run — continue formatting. The plugin never aborts a run because of an embedded body (issue #5).
 
 ## ANTI-PATTERNS
 

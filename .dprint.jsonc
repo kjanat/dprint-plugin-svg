@@ -26,6 +26,9 @@
     "**/*.lock",
     "**/node_modules",
     "**/target",
+    // Test snapshots captured under the *test* dprint config (spaces, no blank lines).
+    // Excluded so repo-wide `dprint fmt` doesn't rewrite them in this repo's style.
+    "tests/fixtures/**/*.expected.svg",
   ],
   "plugins": [
     "https://plugins.dprint.dev/json-0.21.3.wasm", // JSON
