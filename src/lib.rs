@@ -23,6 +23,11 @@ use svg_format::{
     WrappedAttributeIndent,
 };
 
+/// JSON Schema model and defaults used by `generate-schema` / `generate-docs`.
+///
+/// Mirrors [`Configuration`] and the underlying [`svg_format::FormatOptions`]
+/// so the published schema and config-reference docs are generated from the
+/// same source of truth as the runtime.
 #[cfg(feature = "schema")]
 pub mod schema;
 
@@ -64,6 +69,13 @@ pub(crate) const UPDATE_URL: &str =
 ///
 /// Stateless — all configuration is resolved per-request from the
 /// dprint config map.
+///
+/// # Examples
+///
+/// ```
+/// use dprint_plugin_svg::SvgWasmPluginHandler;
+/// let _handler = SvgWasmPluginHandler;
+/// ```
 #[derive(Default)]
 pub struct SvgWasmPluginHandler;
 
@@ -82,6 +94,14 @@ pub struct SvgWasmPluginHandler;
 /// ```
 /// ```svg-output alphabetical
 /// <rect height="50" id="box" width="100" x="10" y="20" />
+/// ```
+///
+/// # Examples
+///
+/// ```
+/// use dprint_plugin_svg::AttributeSortConfig;
+/// let mode = AttributeSortConfig::Canonical;
+/// assert_eq!(mode, AttributeSortConfig::Canonical);
 /// ```
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
@@ -123,6 +143,14 @@ dprint_core::generate_str_to_from![
 ///                 x1="0%" y1="0%">
 /// </linearGradient>
 /// ```
+///
+/// # Examples
+///
+/// ```
+/// use dprint_plugin_svg::AttributeLayoutConfig;
+/// let layout = AttributeLayoutConfig::Auto;
+/// assert_eq!(layout, AttributeLayoutConfig::Auto);
+/// ```
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 #[cfg_attr(
@@ -160,6 +188,14 @@ dprint_core::generate_str_to_from![
 /// ```
 /// ```svg-output single
 /// <rect id='box' class='hero' />
+/// ```
+///
+/// # Examples
+///
+/// ```
+/// use dprint_plugin_svg::QuoteStyleConfig;
+/// let q = QuoteStyleConfig::Double;
+/// assert_eq!(q, QuoteStyleConfig::Double);
 /// ```
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
@@ -205,6 +241,14 @@ dprint_core::generate_str_to_from![
 ///       x="10" y="20" width="100" height="50"
 ///       fill="red" />
 /// ```
+///
+/// # Examples
+///
+/// ```
+/// use dprint_plugin_svg::WrappedAttributeIndentConfig;
+/// let indent = WrappedAttributeIndentConfig::OneLevel;
+/// assert_eq!(indent, WrappedAttributeIndentConfig::OneLevel);
+/// ```
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 #[cfg_attr(
@@ -228,6 +272,14 @@ dprint_core::generate_str_to_from![
 ];
 
 /// # Line ending style.
+///
+/// # Examples
+///
+/// ```
+/// use dprint_plugin_svg::NewLineKindConfig;
+/// let nl = NewLineKindConfig::Lf;
+/// assert_eq!(nl, NewLineKindConfig::Lf);
+/// ```
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 #[cfg_attr(
@@ -271,6 +323,14 @@ dprint_core::generate_str_to_from![
 /// <text>
 ///   hello   world
 /// </text>
+/// ```
+///
+/// # Examples
+///
+/// ```
+/// use dprint_plugin_svg::TextContentModeConfig;
+/// let mode = TextContentModeConfig::Collapse;
+/// assert_eq!(mode, TextContentModeConfig::Collapse);
 /// ```
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
@@ -343,6 +403,14 @@ dprint_core::generate_str_to_from![
 ///   <circle />
 /// </svg>
 /// ```
+///
+/// # Examples
+///
+/// ```
+/// use dprint_plugin_svg::BlankLinesConfig;
+/// let policy = BlankLinesConfig::Truncate;
+/// assert_eq!(policy, BlankLinesConfig::Truncate);
+/// ```
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 #[cfg_attr(
@@ -377,6 +445,18 @@ dprint_core::generate_str_to_from![
 /// [`SvgWasmPluginHandler::resolve_config`], then passed to every
 /// [`SvgWasmPluginHandler::format`] call. Serialized back to the host
 /// for config display.
+///
+/// # Examples
+///
+/// ```no_run
+/// use dprint_core::configuration::{ConfigKeyMap, GlobalConfiguration};
+/// use dprint_core::plugins::SyncPluginHandler;
+/// use dprint_plugin_svg::SvgWasmPluginHandler;
+///
+/// let mut handler = SvgWasmPluginHandler;
+/// let resolved = handler.resolve_config(ConfigKeyMap::new(), &GlobalConfiguration::default());
+/// let _config = resolved.config;
+/// ```
 #[derive(Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Configuration {
@@ -415,6 +495,9 @@ pub struct Configuration {
 }
 
 impl SyncPluginHandler<Configuration> for SvgWasmPluginHandler {
+    /// Plugin identity advertised to the dprint host (name, version, config
+    /// key, schema/help URLs). Pulled from `Cargo.toml` at compile time so
+    /// the runtime can never drift from the published artifact.
     fn plugin_info(&mut self) -> PluginInfo {
         PluginInfo {
             name: env!("CARGO_PKG_NAME").to_string(),
@@ -426,10 +509,19 @@ impl SyncPluginHandler<Configuration> for SvgWasmPluginHandler {
         }
     }
 
+    /// Bundled MIT license text, embedded at compile time from `LICENSE`.
     fn license_text(&mut self) -> String {
         include_str!("../LICENSE").to_string()
     }
 
+    /// Build a fully-resolved [`Configuration`] from the user's
+    /// `dprint.json` slice plus the global config. Every default mirrors
+    /// [`svg_format::FormatOptions::default()`] via the `unmap_*` helpers so
+    /// the plugin can never drift from upstream defaults; options the
+    /// library doesn't model (`lineWidth`, `newLineKind`,
+    /// `formatEmbeddedContent`) keep plugin-specific fallbacks.
+    /// Validation failures are surfaced as
+    /// [`ConfigurationDiagnostic`]s rather than errors.
     fn resolve_config(
         &mut self,
         mut config: ConfigKeyMap,
@@ -576,6 +668,8 @@ impl SyncPluginHandler<Configuration> for SvgWasmPluginHandler {
         }
     }
 
+    /// Reports zero pending config migrations. Reserved for `dprint config
+    /// update` flows; the plugin has no deprecated keys to rewrite today.
     fn check_config_updates(
         &self,
         _message: CheckConfigUpdatesMessage,
@@ -583,6 +677,16 @@ impl SyncPluginHandler<Configuration> for SvgWasmPluginHandler {
         Ok(Vec::new())
     }
 
+    /// Format a single SVG file under the resolved [`Configuration`].
+    ///
+    /// Returns `Ok(None)` when the file is already canonical (no rewrite
+    /// needed), the request is range-scoped (unsupported), or the
+    /// cancellation token fires. Embedded `<style>`/`<script>`/
+    /// `<foreignObject>` bodies are delegated to other dprint plugins via
+    /// `host_format` when [`Configuration::format_embedded_content`] is
+    /// enabled; **any** host failure (parse error, non-UTF-8 reply, …)
+    /// preserves the original block verbatim so a single malformed embedded
+    /// block can never abort the run (issue #5).
     fn format(
         &mut self,
         request: SyncFormatRequest<Configuration>,
