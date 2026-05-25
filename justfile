@@ -1,7 +1,7 @@
 # https://just.systems
 
-set unstable := true
-set positional-arguments := true
+set unstable
+set positional-arguments
 
 alias f := fmt
 alias l := lint

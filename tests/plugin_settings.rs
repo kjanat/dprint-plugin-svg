@@ -608,30 +608,118 @@ fn format_embedded_invalid_css_does_not_fail_run() {
         token: &token,
     };
 
-    let formatted = handler
-        .format(request, |req| {
-            if req.file_path.extension().and_then(|ext| ext.to_str()) == Some("css") {
-                // Simulate malva's response to the malformed `:root { font-family= ... }` line.
-                Err(anyhow!(
-                    "syntax error at line 7, col 20: expect token `:`, but found `=`"
-                ))
-            } else {
-                Ok(None)
-            }
-        })
-        .expect("format must succeed even when embedded CSS is unparseable");
+    // Simulate malva's parse error on the malformed `:root { font-family= ... }` line.
+    let host_callback = |req: dprint_core::plugins::SyncHostFormatRequest<'_>| {
+        if req.file_path.extension().and_then(|ext| ext.to_str()) == Some("css") {
+            Err(anyhow!(
+                "syntax error at line 7, col 20: expect token `:`, but found `=`"
+            ))
+        } else {
+            Ok(None)
+        }
+    };
 
-    let bytes = formatted.expect("should produce formatted output");
+    let bytes = handler
+        .format(request, host_callback)
+        .expect("format must succeed even when embedded CSS is unparseable")
+        .expect("should produce formatted output");
     let output = String::from_utf8(bytes).expect("valid UTF-8");
-    // The malformed CSS line is preserved verbatim inside the <style> block...
-    assert!(
-        output.contains(":root { font-family=\"&quot;Space Mono&quot;, monospace, ui-monospace, serif, system-ui\" }"),
-        "malformed CSS block must be preserved verbatim, got:\n{output}",
+
+    // Exact-output snapshot: the malformed CSS line is preserved verbatim inside
+    // the <style> block, and the surrounding SVG is fully formatted.
+    let expected = include_str!("fixtures/issue-5-invalid-embedded-css.expected.svg");
+    assert_eq!(
+        output, expected,
+        "formatted output drifted from snapshot:\n--- actual ---\n{output}\n--- expected ---\n{expected}",
     );
-    // ...and the surrounding SVG still gets formatted (e.g. self-closing-tag space).
+
+    // Idempotence: re-running on the already-formatted output produces no further
+    // changes — even though the embedded host callback still errors on each pass.
+    let second = handler
+        .format(
+            SyncFormatRequest {
+                file_path: Path::new("issue-5-invalid-embedded-css.svg"),
+                file_bytes: output.as_bytes().to_vec(),
+                config_id: FormatConfigId::from_raw(1),
+                config: &result.config,
+                range: None,
+                token: &token,
+            },
+            host_callback,
+        )
+        .expect("second pass must also succeed");
     assert!(
-        output.contains("<rect width=\"100%\" height=\"100%\" fill=\"white\" />"),
-        "surrounding SVG must still be formatted, got:\n{output}",
+        second.is_none(),
+        "second pass should be a no-op (fixed point), got changes:\n{:?}",
+        second.map(|b| String::from_utf8(b).unwrap()),
+    );
+}
+
+#[test]
+fn format_embedded_host_invalid_utf8_preserves_original() {
+    // Regression for the `Ok(Some(bytes)) => String::from_utf8(bytes).ok()`
+    // fallback: if a host plugin returns non-UTF-8 bytes (e.g. internal bug),
+    // the embedded block is preserved verbatim and the rest of the SVG still
+    // formats. Pairs with the parse-error path in issue #5 — every host
+    // failure mode is opportunistic.
+    let result = resolve_configuration("defaults-global.dprint.json");
+    assert!(result.diagnostics.is_empty());
+    assert!(result.config.format_embedded_content);
+
+    let mut handler = SvgWasmPluginHandler;
+    let token = NullCancellationToken;
+    let input = "<svg><style>.a{fill:red}</style></svg>";
+
+    let host_callback = |req: dprint_core::plugins::SyncHostFormatRequest<'_>| {
+        if req.file_path.extension().and_then(|ext| ext.to_str()) == Some("css") {
+            // Bytes that are not valid UTF-8 (stray 0xFF, 0xFE) — would
+            // previously have been surfaced as a top-level error.
+            Ok(Some(vec![0xFFu8, 0xFE, b'.', b'a', b'{', b'}']))
+        } else {
+            Ok(None)
+        }
+    };
+
+    let bytes = handler
+        .format(
+            SyncFormatRequest {
+                file_path: Path::new("test.svg"),
+                file_bytes: input.as_bytes().to_vec(),
+                config_id: FormatConfigId::from_raw(1),
+                config: &result.config,
+                range: None,
+                token: &token,
+            },
+            host_callback,
+        )
+        .expect("format must succeed despite non-UTF-8 host output")
+        .expect("should produce formatted output");
+    let output = String::from_utf8(bytes).expect("valid UTF-8");
+
+    // Original `.a{fill:red}` body preserved verbatim — the non-UTF-8 reply was discarded.
+    assert!(
+        output.contains(".a{fill:red}"),
+        "original embedded CSS must be preserved when host returns non-UTF-8 bytes, got:\n{output}",
+    );
+
+    // Idempotence: second pass produces no changes.
+    let second = handler
+        .format(
+            SyncFormatRequest {
+                file_path: Path::new("test.svg"),
+                file_bytes: output.as_bytes().to_vec(),
+                config_id: FormatConfigId::from_raw(1),
+                config: &result.config,
+                range: None,
+                token: &token,
+            },
+            host_callback,
+        )
+        .expect("second pass must also succeed");
+    assert!(
+        second.is_none(),
+        "second pass should be a no-op (fixed point), got changes:\n{:?}",
+        second.map(|b| String::from_utf8(b).unwrap()),
     );
 }
 
