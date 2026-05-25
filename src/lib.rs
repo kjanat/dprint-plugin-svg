@@ -67,17 +67,6 @@ pub(crate) const UPDATE_URL: &str =
 #[derive(Default)]
 pub struct SvgWasmPluginHandler;
 
-const INVALID_CONFIG_ERROR_FRAGMENT: &str = "configuration was not valid";
-
-fn is_embedded_host_config_error(err: &anyhow::Error) -> bool {
-    err.chain().any(|cause| {
-        cause
-            .to_string()
-            .to_ascii_lowercase()
-            .contains(INVALID_CONFIG_ERROR_FRAGMENT)
-    })
-}
-
 /// # Attribute ordering strategy exposed in the plugin config.
 ///
 /// Maps 1:1 to [`svg_format::AttributeSort`].
@@ -630,7 +619,6 @@ impl SyncPluginHandler<Configuration> for SvgWasmPluginHandler {
         let line_width = request.config.line_width;
         let indent_width = request.config.indent_width as u32;
         let do_embedded = request.config.format_embedded_content;
-        let mut host_err: Option<anyhow::Error> = None;
 
         let mut formatted = svg_format::format_with_host(source, options, &mut |embedded| {
             if !do_embedded || request.token.is_cancelled() {
@@ -654,45 +642,28 @@ impl SyncPluginHandler<Configuration> for SvgWasmPluginHandler {
                 "newLineKind".into(),
                 dprint_core::configuration::ConfigKeyValue::String("lf".into()),
             );
+            // Embedded-content formatting is opportunistic: any host failure
+            // (misconfigured host plugin, parse error inside the embedded
+            // block, non-UTF-8 bytes back, …) preserves the original block
+            // and lets the rest of the SVG — and other files in the run —
+            // format anyway. Failing the whole run because one <style> or
+            // <script> body is malformed is too punishing, and the host's
+            // line/col refers to the embedded buffer (not the file), so
+            // surfacing it doesn't help locate the problem either. See
+            // issue #5.
             match host_format(SyncHostFormatRequest {
                 file_path: &path,
                 file_bytes: embedded.content.as_bytes(),
                 range: None,
                 override_config: &overrides,
             }) {
-                Ok(Some(bytes)) => match String::from_utf8(bytes) {
-                    Ok(s) => Some(s),
-                    Err(e) => {
-                        host_err.get_or_insert_with(|| {
-                            anyhow!(
-                                "embedded {ext} in '{}' produced invalid UTF-8: {e}",
-                                request.file_path.display()
-                            )
-                        });
-                        None
-                    }
-                },
-                Ok(None) => None,
-                Err(err) => {
-                    if is_embedded_host_config_error(&err) {
-                        return None;
-                    }
-                    host_err.get_or_insert_with(|| {
-                        anyhow!(
-                            "failed to format embedded {ext} in '{}': {err}",
-                            request.file_path.display()
-                        )
-                    });
-                    None
-                }
+                Ok(Some(bytes)) => String::from_utf8(bytes).ok(),
+                Ok(None) | Err(_) => None,
             }
         });
 
         if request.token.is_cancelled() {
             return Ok(None);
-        }
-        if let Some(e) = host_err {
-            return Err(e);
         }
 
         // Defensive: strip any stray CRs from `formatted` before applying the

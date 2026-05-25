@@ -541,7 +541,11 @@ fn format_embedded_host_error_preserves_original() {
 }
 
 #[test]
-fn format_embedded_host_real_error_propagates() {
+fn format_embedded_host_parse_error_preserves_original() {
+    // Regression for issue #5: a host plugin (e.g. malva) returning a syntax
+    // error for an embedded <style>/<script> block must NOT fail the whole
+    // format run. The block is preserved verbatim; the rest of the SVG
+    // (and other files in the run) still get formatted.
     let result = resolve_configuration("defaults-global.dprint.json");
     assert!(result.diagnostics.is_empty());
     assert!(result.config.format_embedded_content);
@@ -558,15 +562,77 @@ fn format_embedded_host_real_error_propagates() {
         token: &token,
     };
 
-    let err = handler.format(request, |req| {
-        if req.file_path.extension().and_then(|ext| ext.to_str()) == Some("js") {
-            Err(anyhow!("parse error"))
-        } else {
-            Ok(None)
-        }
-    });
+    let mut called = false;
+    let output = handler
+        .format(request, |req| {
+            if req.file_path.extension().and_then(|ext| ext.to_str()) == Some("js") {
+                called = true;
+                Err(anyhow!(
+                    "syntax error at line 7, col 20: expect token `:`, but found `=`"
+                ))
+            } else {
+                Ok(None)
+            }
+        })
+        .expect("format should succeed despite embedded parse error")
+        .expect("should produce formatted text");
 
-    assert!(err.is_err(), "real host errors should propagate");
+    assert!(called, "host callback should be invoked for JS");
+    let output = String::from_utf8(output).expect("valid UTF-8");
+    assert_eq!(
+        output,
+        "<svg>\n    <script>\n        <![CDATA[function test(){return 3;}]]>\n    </script>\n</svg>"
+    );
+}
+
+#[test]
+fn format_embedded_invalid_css_does_not_fail_run() {
+    // End-to-end regression for issue #5: the exact shape of SVG that
+    // tripped the original bug — a <style> block whose CSS uses `=`
+    // (SVG attribute syntax) where CSS expects `:`. The host CSS plugin
+    // would return a syntax error; the plugin must skip that block and
+    // still emit a formatted SVG for the rest of the document.
+    let result = resolve_configuration("defaults-global.dprint.json");
+    assert!(result.diagnostics.is_empty());
+
+    let input = include_str!("fixtures/issue-5-invalid-embedded-css.svg");
+
+    let mut handler = SvgWasmPluginHandler;
+    let token = NullCancellationToken;
+    let request = SyncFormatRequest {
+        file_path: Path::new("issue-5-invalid-embedded-css.svg"),
+        file_bytes: input.as_bytes().to_vec(),
+        config_id: FormatConfigId::from_raw(1),
+        config: &result.config,
+        range: None,
+        token: &token,
+    };
+
+    let formatted = handler
+        .format(request, |req| {
+            if req.file_path.extension().and_then(|ext| ext.to_str()) == Some("css") {
+                // Simulate malva's response to the malformed `:root { font-family= ... }` line.
+                Err(anyhow!(
+                    "syntax error at line 7, col 20: expect token `:`, but found `=`"
+                ))
+            } else {
+                Ok(None)
+            }
+        })
+        .expect("format must succeed even when embedded CSS is unparseable");
+
+    let bytes = formatted.expect("should produce formatted output");
+    let output = String::from_utf8(bytes).expect("valid UTF-8");
+    // The malformed CSS line is preserved verbatim inside the <style> block...
+    assert!(
+        output.contains(":root { font-family=\"&quot;Space Mono&quot;, monospace, ui-monospace, serif, system-ui\" }"),
+        "malformed CSS block must be preserved verbatim, got:\n{output}",
+    );
+    // ...and the surrounding SVG still gets formatted (e.g. self-closing-tag space).
+    assert!(
+        output.contains("<rect width=\"100%\" height=\"100%\" fill=\"white\" />"),
+        "surrounding SVG must still be formatted, got:\n{output}",
+    );
 }
 
 #[test]
