@@ -20,8 +20,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   whose CSS used `=` instead of `:`) would abort the whole `dprint fmt`
   invocation. Note: the host plugin's `line N, col N` still refers to
   the embedded buffer rather than the file; mapping it back to the SVG
-  source requires upstream support in `svg-language-server` (issue
-  filed there). See issue #5.
+  source requires upstream support in `svg-language-server`
+  (tracked at kjanat/svg-language-server#8). See issue #5 for the
+  original bug and #7 for the downstream follow-up.
 
 ## [0.4.0] - 2026-04-18
 
